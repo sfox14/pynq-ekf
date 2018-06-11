@@ -13,8 +13,8 @@ import os
 
 #os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
-BIT_DIR = os.path.join(ROOT_DIR, "../boards/Pynq-Z1/bitstreams")
-LIB_DIR = os.path.join(ROOT_DIR, "../boards/Pynq-Z1/libs")
+BIT_DIR = os.path.join(ROOT_DIR, "bitstreams")
+LIB_DIR = os.path.join(ROOT_DIR, "libs")
 
 
 class EKF(object):
