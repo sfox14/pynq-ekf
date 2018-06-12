@@ -1,6 +1,6 @@
 # PYNQ Extended Kalman Filter (EKF) 
 
-This repository is an example application of PYNQ supporting multiple boards from a single pip-installable package. From the same HLS/SDSoC source code, and using the same Python API and notebooks, we can develop applications which simply move across Xilinx boards. This has the potential to simplify the design and deployment of embedded applications, by improving code reusability and reducing the design time.  
+This repository provides an example of PYNQ supporting multiple boards from a single pip-installable package. From the same HLS/SDSoC source code, and using the same Python API and notebooks, we can develop applications which simply move across Xilinx boards. This has the potential to simplify the deployment of embedded applications, improve code reusability and reduce design time.  
 
 ## Quick Start:
 
