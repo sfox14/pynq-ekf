@@ -72,9 +72,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+#build/
 develop-eggs/
-dist/
+#dist/
 downloads/
 eggs/
 .eggs/
@@ -172,3 +172,4 @@ venv.bak/
 # SDSoC
 *.dat
 !/boards/*/libs/*.so
+!/build/dist/*/*.o
