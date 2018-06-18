@@ -41,8 +41,20 @@ def collect_ekf_data_files():
         for ol in exclude_from_dirs('notebooks', board_folder)]
 
 
+def build_shared_object(board):
+    cmd = ["make", "install", "BOARD=%s"%(board), "-C", "./build"]
+    status = subprocess.check_call(cmd)
+    if status is not 0:
+        print("Error while running make... exiting")
+        sys.exit(1)
+
+
+
+# Build the shared object
+build_shared_object(board)
+
 # Copy notebooks
-notebook_dir = notebooks_dir = os.environ['PYNQ_JUPYTER_NOTEBOOKS']
+notebook_dir = os.environ['PYNQ_JUPYTER_NOTEBOOKS']
 notebook_folder = os.path.join(notebook_dir, "ekf")
 source_folder = "notebooks/"
 if os.path.exists(notebook_folder):
