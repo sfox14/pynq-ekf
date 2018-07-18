@@ -11,12 +11,6 @@ import cffi
 import os
 
 
-#os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
-ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
-BIT_DIR = os.path.join(ROOT_DIR, "bitstreams")
-LIB_DIR = os.path.join(ROOT_DIR, "libs")
-
-
 class EKF(object):
     __metaclass__ = ABCMeta
 
@@ -42,9 +36,8 @@ class EKF(object):
 
         Attributes:
         '''
-        self.bitstream_name = os.path.join(os.path.abspath(BIT_DIR), bitstream)
-        self.library_name = os.path.join(os.path.abspath(LIB_DIR), lib)
-        #if PL.bitfile_name != self.bitstream_name and bitstream is not None:
+        self.bitstream_name = bitstream
+        self.library_name = lib
         if load_overlay:
             Overlay(self.bitstream_name).download()
         else:
@@ -142,5 +135,7 @@ from .gps_ekf import GPS_EKF
 __author__ = "Sean Fox"
 
 __all__ = ["EKF",
-           "GPS_EKF"]
-__version__= 0.1
+           "GPS_EKF",
+           "GPS_EKF_GENERAL",
+           "Light_EKF"]
+__version__= 0.2
