@@ -42,13 +42,26 @@ def collect_ekf_data_files():
 
 
 def build_shared_object(board):
-    cmd = ["make", "install", "BOARD=%s"%(board), "-C", "./build"]
-    status = subprocess.check_call(cmd)
-    if status is not 0:
-        print("Error while running make... exiting")
-        sys.exit(1)
+    build_folder = "build/dist/{}/".format(board)
+    try:
+        locs = [x[0] for x in os.walk(build_folder) if len(x[0].split(
+            "/"))==5]
+    except Exception:
+        raise BoardSupportError("%s does not exist" %build_folder)
+    names = [x.split("/")[-1] for x in locs]
+    if len(names) == 0:
+        return
 
-
+    # build all shared objects
+    for i, loc in enumerate(locs):
+        bf = "/".join(loc.split("/")[-3:-1])
+        print(bf)
+        cmd = ["make", "install", "BOARD=%s"%(bf), "NAME=%s"%(names[i]),
+               "-C", "./build"]
+        status = subprocess.check_call(cmd)
+        if status is not 0:
+            print("Error while running make... exiting")
+            sys.exit(1)
 
 # Build the shared object
 build_shared_object(board)
