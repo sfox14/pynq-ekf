@@ -10,9 +10,10 @@ BOARD := Pynq-Z1
 OVERLAY := bare
 PLATFORM := 
 NAME :=
+CC := arm-linux-gnueabihf-g++
 
 .PHONY: all gps n2m2 n8m4
-all: help n8m4
+all: help gps
 
 gps:
 	make -f example.mk BOARD=$(BOARD) OVERLAY=$(OVERLAY) PLATFORM=$(PLATFORM) PROC=full NAME=gps
@@ -24,7 +25,7 @@ n8m4:
 	make -f example.mk BOARD=$(BOARD) OVERLAY=$(OVERLAY) PLATFORM=$(PLATFORM) PROC=base NAME=n8m4
 
 install:
-	make -f example.mk install BOARD=$(BOARD) NAME=$(NAME)
+	make -f example.mk install BOARD=$(BOARD) NAME=$(NAME) ACC=$(CC)
 	
 ECHO:= @echo
 
@@ -49,4 +50,11 @@ help::
 	$(ECHO) "					eg. bare, hdmi, ultra"
 	$(ECHO) "	BOARD:		name of the board (default=Pynq-Z1)"
 	$(ECHO) "					eg. Pynq-Z1, Pynq-Z2, Ultra96"
+	$(ECHO) ""
+	$(ECHO) "	Additional Arguments (for setup.py):"
+	$(ECHO) "	------------------------------------"
+	$(ECHO) "	NAME:		name of the design"
+	$(ECHO) "					eg. gps, n2m2"
+	$(ECHO) "	CC:		target board compiler"
+	$(ECHO) "					eg. arm-linux-gnueabihf-g++, aarch64-linux-gnu-g++"
 	$(ECHO) ""

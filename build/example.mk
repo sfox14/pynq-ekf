@@ -11,6 +11,7 @@ OVERLAY := bare
 PLATFORM := 
 PROC := full
 NAME := gps
+ACC := arm-linux-gnueabihf-g++
 
 # Target OS:
 #     linux (Default), standalone
@@ -93,7 +94,7 @@ CC := sdscc $(SDSFLAGS)
 
 
 .PHONY: all library
-all: help $(BUILD_DIR)/$(LIBRARY) cleanall
+all: help $(BUILD_DIR)/$(EXECUTABLE) clean
 
 elf: $(BUILD_DIR)/$(EXECUTABLE)
 
@@ -102,14 +103,6 @@ $(BUILD_DIR)/$(EXECUTABLE): $(OBJECTS)
 	@echo 'Building Target: $@'
 	@echo 'Trigerring: SDS++ Linker'
 	cd $(BUILD_DIR) ; $(CPP) -o $(EXECUTABLE) $(OBJECTS)
-	@echo 'SDx Completed Building Target: $@'
-	@echo ' '
-
-$(BUILD_DIR)/$(LIBRARY): $(OBJECTS)
-	mkdir -p $(BUILD_DIR)
-	@echo 'Building Target: $@'
-	@echo 'Trigerring: SDS++ Linker'
-	cd $(BUILD_DIR) ; $(CPP) -fPIC -Wall -shared -o $(LIBRARY) $(OBJECTS)
 	@echo 'SDx Completed Building Target: $@'
 	@echo 'Copy compiled stub files'
 	mkdir -p dist/$(BOARD)/$(PROC)/$(NAME)
@@ -133,7 +126,7 @@ $(pwd)/$(BUILD_DIR)/%.o: $(pwd)/$(SRC_DIR)/%.cpp
 
 install: 
 	mkdir -p ../boards/$(BOARD)
-	arm-linux-gnueabihf-g++ -g3 -gstabs -shared -fPIC -rdynamic $(shell find dist/$(BOARD)/$(NAME) -name '*.o') \
+	$(ACC) -g3 -gstabs -shared -fPIC -rdynamic $(shell find dist/$(BOARD)/$(NAME) -name '*.o') \
 		-Wl,--start-group -l pthread /usr/lib/libsds_lib.so -Wl,--end-group \
 		-o ../boards/$(BOARD)/$(LIBRARY)
 	
