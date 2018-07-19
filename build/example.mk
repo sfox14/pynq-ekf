@@ -94,7 +94,7 @@ CC := sdscc $(SDSFLAGS)
 
 
 .PHONY: all library
-all: help $(BUILD_DIR)/$(EXECUTABLE) clean
+all: help $(BUILD_DIR)/$(LIBRARY) clean
 
 elf: $(BUILD_DIR)/$(EXECUTABLE)
 
@@ -102,7 +102,14 @@ $(BUILD_DIR)/$(EXECUTABLE): $(OBJECTS)
 	mkdir -p $(BUILD_DIR)
 	@echo 'Building Target: $@'
 	@echo 'Trigerring: SDS++ Linker'
-	cd $(BUILD_DIR) ; $(CPP) -o $(EXECUTABLE) $(OBJECTS)
+	cd $(BUILD_DIR) ; $(CPP) -fPIC -Wall -O3 -o $(EXECUTABLE) $(OBJECTS)
+	@echo ' '
+
+$(BUILD_DIR)/$(LIBRARY): $(OBJECTS)
+	mkdir -p $(BUILD_DIR)
+	@echo 'Building Target: $@'
+	@echo 'Trigerring: SDS++ Linker'
+	cd $(BUILD_DIR) ; $(CPP) -fPIC -Wall -shared -o $(LIBRARY) $(OBJECTS)
 	@echo 'SDx Completed Building Target: $@'
 	@echo 'Copy compiled stub files'
 	mkdir -p dist/$(BOARD)/$(PROC)/$(NAME)

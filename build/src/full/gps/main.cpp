@@ -131,10 +131,10 @@ int main(int argc, char ** argv)
     port_t *xin, *output, *params, *pout;
 	float *output_fl;
 	output_fl = (float *)malloc(datalen*Nxyz*sizeof(float));
-	xin = (port_t *)sds_alloc(datalen*Nsats*(Nxyz+1)*sizeof(port_t));
-    params = (port_t *)sds_alloc(182*sizeof(port_t));
-    output = (port_t *)sds_alloc(datalen*Nxyz*sizeof(port_t));
-	pout = (port_t *)sds_alloc((Nsta*Nsta)*sizeof(port_t));
+	xin = (port_t *)sds_alloc_non_cacheable(datalen*Nsats*(Nxyz+1)*sizeof(port_t));
+    params = (port_t *)sds_alloc_non_cacheable(182*sizeof(port_t));
+    output = (port_t *)sds_alloc_non_cacheable(datalen*Nxyz*sizeof(port_t));
+	pout = (port_t *)sds_alloc_non_cacheable((Nsta*Nsta)*sizeof(port_t));
 
 	/* params[Nsta+Nsta+Mobs+(2*Nsta*Nsta)+(Mobs*Nsta)+2]:
 		1 - x[Nsta]
