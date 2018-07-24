@@ -49,8 +49,10 @@ def collect_ekf_designs():
         print(os.getcwd())
         print(os.listdir(os.getcwd()))
         copy_tree(os.path.join(board_folder, ds), os.path.join("ekf", ds))
-        print(os.listdir(os.path.join(os.getcwd(), "ekf/full")))
+        #print(os.listdir(os.path.join(os.getcwd(), "ekf/full")))
         new_dir = os.path.join("ekf", ds) # location for .bit .tcl .so files
+        f1 = open(os.path.join(new_dir, "__init__.py"), "w")
+        f1.close()
         print("nd: ", new_dir)
         files = exclude_from_files("makefile", new_dir) # example to exclude
         print("f: ", files)
@@ -112,7 +114,7 @@ setup(
     author_email="sean.fox@sydney.edu.au",
     packages=find_packages(), #['ekf'],
     package_data={'' : ['*.bit','*.tcl','*.so']},
-    data_files=ekf_data_files,
+    #data_files=ekf_data_files,
     include_package_data=True,
     description="Extended Kalman Filter (EKF) supporting multiple PYNQ "
                 "enabled boards"
