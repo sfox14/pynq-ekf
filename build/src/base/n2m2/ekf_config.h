@@ -22,7 +22,7 @@ extern "C" {
 
 #pragma SDS data access_pattern(obs:SEQUENTIAL, output:SEQUENTIAL)
 #pragma SDS data access_pattern(F_i:SEQUENTIAL, H_i:SEQUENTIAL)
-#pragma SDS data copy(obs[0:Mobs], output[0:Nsta])
+#pragma SDS data copy(obs[0:Mobs], params[0:(Nsta + (2*Nsta*Nsta) + (Mobs*Mobs))], output[0:Nsta])
 #pragma SDS data copy(F_i[0:(w1*w1)], H_i[0:(w1*w2)])
 #pragma SDS data data_mover(obs:AXIDMA_SIMPLE, params:AXIDMA_SIMPLE, output:AXIDMA_SIMPLE)
 #pragma SDS data data_mover(fx_i:AXIDMA_SIMPLE, hx_i:AXIDMA_SIMPLE, F_i:AXIDMA_SIMPLE, H_i:AXIDMA_SIMPLE)

@@ -46,13 +46,13 @@ int main(int argc, char ** argv)
 	port_t *fx_i, *hx_i, *F_i, *H_i;
 
 	// allocate memory 
-	obs= (port_t *)sds_alloc(datalen*Mobs*sizeof(port_t));
-	params = (port_t *)sds_alloc(PARAMS_IN*sizeof(port_t));
-    xout = (port_t *)sds_alloc(datalen*Nsta*sizeof(port_t));
-	fx_i = (port_t *)sds_alloc(Nsta*sizeof(port_t));
-	hx_i = (port_t *)sds_alloc(Mobs*sizeof(port_t));
-	F_i = (port_t *)sds_alloc(Nsta*Nsta*sizeof(port_t));
-	H_i = (port_t *)sds_alloc(Mobs*Nsta*sizeof(port_t));
+	obs= (port_t *)sds_alloc_non_cacheable(datalen*Mobs*sizeof(port_t));
+	params = (port_t *)sds_alloc_non_cacheable(PARAMS_IN*sizeof(port_t));
+    	xout = (port_t *)sds_alloc_non_cacheable(datalen*Nsta*sizeof(port_t));
+	fx_i = (port_t *)sds_alloc_non_cacheable(Nsta*sizeof(port_t));
+	hx_i = (port_t *)sds_alloc_non_cacheable(Mobs*sizeof(port_t));
+	F_i = (port_t *)sds_alloc_non_cacheable(Nsta*Nsta*sizeof(port_t));
+	H_i = (port_t *)sds_alloc_non_cacheable(Mobs*Nsta*sizeof(port_t));
 	
 	int ctrl, w1, w2;
 	
