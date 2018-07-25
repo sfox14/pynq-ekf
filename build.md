@@ -1,10 +1,13 @@
+
 # Rebuild SDSoC Project
 
-This is a short guide for rebuilding the EKF project on different and new platforms. You can also use HLS directives to build different (N,M) configurations of the HW-SW co-design architectecture. The targeted SDSoC/HLS source files can be found in [/build/src](./src).
+This is a short guide for rebuilding the EKF project. The targeted SDSoC/HLS source files can be found in [/build/src](./src).
 
-## Hardware (x86):
+---------------------------------------------------------------------------------------------------------------------
 
-Below are steps for rebuilding the hardware on your host machine. This flow generates a bitstream and cross-compiled stub object files. The stubs are outputs of SDSoC used to call IP on the FPGA. They must be linked with /usr/lib/libsds_lib.so on the PYNQ board to generate a c-callable software library. This is discussed in Software below.
+## 1. Hardware (x86):
+
+Steps for rebuilding the hardware on your host machine are given below. This flow generates a bitstream and cross-compiled stub object files. The stubs are outputs of SDSoC used to call IP on the FPGA, which must be linked with /usr/lib/libsds_lib.so on the PYNQ board. This will generate a c-callable software library, and is discussed more in the Software section below.
 
 
 #### Step 1: Clone and Fork
@@ -12,7 +15,7 @@ Below are steps for rebuilding the hardware on your host machine. This flow gene
 On your host computer, clone this repository and change to the /build directory.
 
 ```shell
-git clone https://github.com/sfox14/pynq-ekf.git
+git clone https://github.com/**yourusername**/pynq-ekf.git
 cd pynq-ekf/build
 ```
 #### Step 2: Source Vivado and SDx 2017.4
@@ -36,8 +39,15 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare> BOARD=<eg. Pynq-Z1, Ultra96>
 ```
 This will launch the sds++ compiler, and will generate both the bitstream and compiled stub object files. This step requires the path to a working SDSoC platform. You can visit this [repository](https://github.com/yunqu/PYNQ-derivative-overlays) if you would like to build your own platform using a DSA derived from an existing PYNQ project. 
 
+**Optional:** You can also use HLS directives to build different (N,M) configurations for the HW-SW architectecture:
 
-## Software (PYNQ board)
+```shell
+make PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare> BOARD=<eg. Pynq-Z1, Ultra96> AA=** BB=**
+```
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+## 2. Software (PYNQ board)
 
 The software library can be built on the PYNQ board using setup.py, or alternatively by running the makefile separately.
 
@@ -56,8 +66,10 @@ git push origin/master
 Open a terminal on your PYNQ board and run:
 
 ```
-sudo pip3.6 install --upgrade git+https://github.com/yourusername/pynq-ekf.git 
+sudo pip3.6 install --upgrade git+https://github.com/**yourusername**/pynq-ekf.git 
 ```
+
+--------------------------------------------------------------------------------------------------------------------------------
 
 ## Note: 
 
