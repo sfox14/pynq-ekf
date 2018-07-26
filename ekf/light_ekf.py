@@ -61,6 +61,7 @@ class Light_EKF(EKF):
 
     def reset(self):
         self.xlnk.xlnk_reset()
+        self.hw_init()
 
     @property
     def ffi_interface(self):

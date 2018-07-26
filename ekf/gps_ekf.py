@@ -24,7 +24,9 @@ class GPS_EKF(EKF):
                            -0.37850311, 0.3,
                            0.02, 0])
         self.x_hw = self.x
-
+        self.toFixed = NumpyFloatToFixConverter(signed=True, n_bits=32,
+                                                n_frac=20)
+        self.toFloat = NumpyFixToFloatConverter(20)
         self.n = n
         self.m = m
         self.pval = pval
@@ -44,9 +46,6 @@ class GPS_EKF(EKF):
             * fixed-point conversion
             * contiguous memory allocation
         '''
-        def toFixed(a, dtype=np.int32):
-            return (a*(1<<FRAC_WIDTH)).astype(dtype)
-
         fx = np.zeros(self.n)
         hx = np.zeros(self.m)
         F = np.kron(np.eye(4), np.array([[1,1],[0,1]]))
@@ -57,7 +56,7 @@ class GPS_EKF(EKF):
             (self.x_hw, fx, hx, F.flatten(), H.flatten(), P.flatten(),
              np.array([self.qval]), np.array([self.rval])), axis=0)
 
-        params = toFixed(params)
+        params = self.toFixed(params)
         self.paramBuffer = self.copy_array(params)
         self.poutBuffer = self.xlnk.cma_array(shape=(64,1), dtype=np.int32)
         self.outBuffer = self.xlnk.cma_array(shape=(MAX_LENGTH, 3),
@@ -204,26 +203,8 @@ class GPS_EKF_GENERAL(EKF):
             output[i][2] = state[4]
         return output
 
-    def debugInputs(self, obs, fx, hx, F, H, i):
-        print("------------- DEBUG INPUTS [%d] ------------" % (i))
-        print("obs=\n", obs, obs.shape, obs.pointer, obs.dtype)
-        print("fx=\n", fx, fx.shape, fx.pointer, fx.dtype)
-        print("hx=\n", hx, hx.shape, hx.pointer, hx.dtype)
-        print("F=\n", F.reshape(8, 8), F.shape, F.pointer, F.dtype)
-        print("H=\n", H.reshape(4, 8), H.shape, H.pointer, H.dtype)
-        print("--------------------------------------------")
-        return
 
-    def debugOutputs(self, xout, xout_fl, i):
-        print("------------- DEBUG OUTPUTS [%d] ------------" % (i))
-        print("xout=\n", xout, xout.shape, xout.dtype)
-        print("xout_fl=\n", xout_fl, xout_fl.shape, xout_fl.dtype)
-        print("--------------------------------------------")
-        return
-
-    def run_hw(self, x, debug=True, wait=None):
-        # create array to store output
-        output = np.zeros((len(x), 3))
+    def run_hw(self, x):
 
         # Fetch first observation+measurement, convert observation to fixed, copy into contiguous memory buffer
         line = x[0]
@@ -233,11 +214,6 @@ class GPS_EKF_GENERAL(EKF):
 
         # compute fx, hx, F, H in python floating point, convert back to fixed, copy to contiguous memory
         self.model(self.x_fl, pos)
-
-        # debug input
-        if debug:
-            self.debugInputs(self.obs, self.fx_hw, self.hx_hw, self.F_hw,
-                             self.H_hw, 0)
 
         # output ptr
         offset = 0
@@ -249,15 +225,6 @@ class GPS_EKF_GENERAL(EKF):
 
         # convert state into float for next iteration model()
         self.x_fl = self.toFloat(self.outBuffer[0])  # *(1.0/(1<<20))
-
-        # debug output
-        if debug:
-            self.debugOutputs(self.outBuffer[0], self.x_fl, 0)
-
-        # write hw state (in fixed point) to array
-        # output[0][0] = self.outBuffer[0]
-        # output[0][1] = self.outBuffer[2]
-        # output[0][2] = self.outBuffer[4]
 
         # repeat for len(x)-1 iterations
         for i, line in enumerate(x[1:]):
@@ -272,11 +239,6 @@ class GPS_EKF_GENERAL(EKF):
             # compute fx, hx, F, H in python floating point, convert back to fixed, copy to contiguous memory
             self.model(self.x_fl, pos)
 
-            # debug inputs
-            if debug:
-                self.debugInputs(self.obs, self.fx_hw, self.hx_hw, self.F_hw,
-                                 self.H_hw, i + 1)
-
             # output ptr
             offset += 32
             out_ptr = self.outBuffer.pointer + offset
@@ -288,15 +250,6 @@ class GPS_EKF_GENERAL(EKF):
 
             # convert state into float for next iteration model()
             self.x_fl = self.toFloat(self.outBuffer[i + 1])  # *(1.0/(1<<20))
-
-            # debug output
-            if debug:
-                self.debugOutputs(self.outBuffer[i + 1], self.x_fl, i + 1)
-
-            # write hw state (in fixed point) to array
-            # output[i+1][0] = self.outBuffer[0]
-            # output[i+1][1] = self.outBuffer[2]
-            # output[i+1][2] = self.outBuffer[4]
 
         return self.outBuffer[:, [0, 2, 4]]  # output #
 
