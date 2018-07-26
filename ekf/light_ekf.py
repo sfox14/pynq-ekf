@@ -14,7 +14,7 @@ class Light_EKF(EKF):
     def __init__(self, n=2, m=2, pval=0.01, qval=0.01, rval=2.5,
                  load_overlay=True):
 
-        OVERLAY_DIR = os.path.join(ROOT_DIR, "base")
+        OVERLAY_DIR = os.path.join(ROOT_DIR, "hw-sw")
         bitstream = os.path.join(os.path.abspath(OVERLAY_DIR), "ekf_n2m2.bit")
         lib = os.path.join(os.path.abspath(OVERLAY_DIR), "libekf_n2m2.so")
 

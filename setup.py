@@ -68,26 +68,30 @@ def build_shared_object(board):
     if board in ["Ultra96", "ZCU104"]:
         arch = "aarch64-linux-gnu-g++"
 
-    build_folder = "build/dist/{}/".format(board)
+    build_folder = "build/x86/dist/{}/".format(board)
+
     try:
         locs = [x[0] for x in os.walk(build_folder) if len(x[0].split(
-            "/"))==5]
+            "/"))==6]
     except Exception:
         raise BoardSupportError("%s does not exist" %build_folder)
     names = [x.split("/")[-1] for x in locs]
     if len(names) == 0:
         return
-
+    print("bf: ", board_folder)
+    print("locs: ", locs)
+    print("names: ", names) 
     # build all shared objects
     for i, loc in enumerate(locs):
         bf = "/".join(loc.split("/")[-3:-1])
-        print(bf)
+        print(bf, names[i])
         cmd = ["make", "install", "BOARD=%s"%(bf), "NAME=%s"%(names[i]),
-               "CC=%s"%(arch), "-C", "./build"]
+               "CC=%s"%(arch), "-C", "./build/arm"]
         status = subprocess.check_call(cmd)
         if status is not 0:
             print("Error while running make... exiting")
             sys.exit(1)
+
 
 #1. Build the shared object
 build_shared_object(board)

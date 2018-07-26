@@ -14,7 +14,7 @@ class GPS_EKF(EKF):
 
     def __init__(self, n, m, pval=0.5, qval=0.1, rval=20.0, load_overlay=True):
 
-        OVERLAY_DIR = os.path.join(ROOT_DIR, "full")
+        OVERLAY_DIR = os.path.join(ROOT_DIR, "hw")
         bitstream = os.path.join(os.path.abspath(OVERLAY_DIR), "ekf_gps.bit")
         lib = os.path.join(os.path.abspath(OVERLAY_DIR), "libekf_gps.so")
 
@@ -136,7 +136,7 @@ class GPS_EKF_GENERAL(EKF):
     def __init__(self, n=8, m=4, pval=0.5, qval=0.1, rval=20,
                  load_overlay=True):
 
-        OVERLAY_DIR = os.path.join(ROOT_DIR, "base")
+        OVERLAY_DIR = os.path.join(ROOT_DIR, "hw-sw")
         bitstream = os.path.join(os.path.abspath(OVERLAY_DIR), "ekf_n8m4.bit")
         lib = os.path.join(os.path.abspath(OVERLAY_DIR), "libekf_n8m4.so")
 
