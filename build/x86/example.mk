@@ -97,9 +97,9 @@ $(BUILD_DIR)/$(LIBRARY): $(OBJECTS)
 	mkdir -p $(BUILD_DIR)
 	@echo 'Building Target: $@'
 	@echo 'Trigerring: SDS++ Linker'
-	#cd $(BUILD_DIR) ; $(CPP) -fPIC -Wall -shared -o $(LIBRARY) $(OBJECTS)
-	#@echo 'SDx Completed Building Target: $@'
-	#@echo 'Copy compiled stub files'
+	cd $(BUILD_DIR) ; $(CPP) -fPIC -Wall -shared -o $(LIBRARY) $(OBJECTS)
+	@echo 'SDx Completed Building Target: $@'
+	@echo 'Copy compiled stub files'
 	mkdir -p dist/$(BOARD)/$(DESIGN)/$(NAME)
 	cp $(DISTS) dist/$(BOARD)/$(DESIGN)/$(NAME)
 	@echo 'Copy bitstream'

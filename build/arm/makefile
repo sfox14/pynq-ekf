@@ -31,6 +31,6 @@ help::
 	$(ECHO) "					eg. home/usr/sdx-platforms/Pynq-Z1/bare"
 	$(ECHO) "	NAME:		name of the design (default=bare)" 
 	$(ECHO) "					eg. gps, n2m2, n8m4"
-	$(ECHO) "	CC:			target compiler"
+	$(ECHO) "	CC:		target compiler"
 	$(ECHO) "					eg. arm-linux-gnueabihf-g++, aarch64-linux-gnu-g++"
 	$(ECHO) ""
