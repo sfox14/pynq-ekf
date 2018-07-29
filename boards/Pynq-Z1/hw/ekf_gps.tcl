@@ -102,7 +102,7 @@ if { ${design_name} eq "" } {
 
    common::send_msg_id "BD_TCL-003" "INFO" "Currently there is no design <$design_name> in project, so creating one..."
 
-   create_bd_design -bdsource SDSoC $design_name
+   create_bd_design $design_name
 
    common::send_msg_id "BD_TCL-004" "INFO" "Making design <$design_name> as current_bd_design."
    current_bd_design $design_name
@@ -114,44 +114,6 @@ common::send_msg_id "BD_TCL-005" "INFO" "Currently the variable <design_name> is
 if { $nRet != 0 } {
    catch {common::send_msg_id "BD_TCL-114" "ERROR" $errMsg}
    return $nRet
-}
-
-set bCheckIPsPassed 1
-##################################################################
-# CHECK IPs
-##################################################################
-set bCheckIPs 1
-if { $bCheckIPs == 1 } {
-   set list_check_ips "\ 
-xilinx.com:ip:xlconstant:1.1\
-xilinx.com:ip:axi_dma:7.1\
-xilinx.com:ip:processing_system7:5.5\
-xilinx.com:ip:proc_sys_reset:5.0\
-xilinx.com:hls:top_ekf:1.0\
-xilinx.com:ip:adapter_v3_0:1.0\
-xilinx.com:ip:xlconcat:2.1\
-"
-
-   set list_ips_missing ""
-   common::send_msg_id "BD_TCL-006" "INFO" "Checking if the following IPs exist in the project's IP catalog: $list_check_ips ."
-
-   foreach ip_vlnv $list_check_ips {
-      set ip_obj [get_ipdefs -all $ip_vlnv]
-      if { $ip_obj eq "" } {
-         lappend list_ips_missing $ip_vlnv
-      }
-   }
-
-   if { $list_ips_missing ne "" } {
-      catch {common::send_msg_id "BD_TCL-115" "ERROR" "The following IPs are not found in the IP Catalog:\n  $list_ips_missing\n\nResolution: Please add the repository containing the IP(s) to the project." }
-      set bCheckIPsPassed 0
-   }
-
-}
-
-if { $bCheckIPsPassed != 1 } {
-  common::send_msg_id "BD_TCL-1003" "WARNING" "Will not continue with creation of design due to the error(s) above."
-  return 3
 }
 
 ##################################################################
@@ -198,108 +160,11 @@ proc create_root_design { parentCell } {
 
   # Create ports
 
-  # Create instance: axcache_0xE, and set properties
-  set axcache_0xE [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 axcache_0xE ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {14} \
-   CONFIG.CONST_WIDTH {4} \
- ] $axcache_0xE
-
-  # Create instance: axi_ic_ps7_0_M_AXI_GP0, and set properties
-  set axi_ic_ps7_0_M_AXI_GP0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ic_ps7_0_M_AXI_GP0 ]
-  set_property -dict [ list \
-   CONFIG.M00_HAS_REGSLICE {1} \
-   CONFIG.M01_HAS_REGSLICE {1} \
-   CONFIG.M02_HAS_REGSLICE {1} \
-   CONFIG.M03_HAS_REGSLICE {1} \
-   CONFIG.M04_HAS_REGSLICE {1} \
-   CONFIG.NUM_MI {5} \
-   CONFIG.NUM_SI {1} \
-   CONFIG.S00_HAS_REGSLICE {1} \
-   CONFIG.STRATEGY {2} \
- ] $axi_ic_ps7_0_M_AXI_GP0
-
-  # Create instance: axi_ic_ps7_0_S_AXI_ACP, and set properties
-  set axi_ic_ps7_0_S_AXI_ACP [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ic_ps7_0_S_AXI_ACP ]
-  set_property -dict [ list \
-   CONFIG.M00_HAS_DATA_FIFO {2} \
-   CONFIG.M00_HAS_REGSLICE {1} \
-   CONFIG.NUM_MI {1} \
-   CONFIG.NUM_SI {4} \
-   CONFIG.S00_HAS_DATA_FIFO {2} \
-   CONFIG.S00_HAS_REGSLICE {1} \
-   CONFIG.S01_HAS_DATA_FIFO {2} \
-   CONFIG.S01_HAS_REGSLICE {1} \
-   CONFIG.S02_HAS_DATA_FIFO {2} \
-   CONFIG.S02_HAS_REGSLICE {1} \
-   CONFIG.S03_HAS_DATA_FIFO {2} \
-   CONFIG.S03_HAS_REGSLICE {1} \
-   CONFIG.STRATEGY {2} \
- ] $axi_ic_ps7_0_S_AXI_ACP
-
   # Create instance: constant0, and set properties
   set constant0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant0 ]
   set_property -dict [ list \
    CONFIG.CONST_VAL {0} \
  ] $constant0
-
-  # Create instance: dm_0, and set properties
-  set dm_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 dm_0 ]
-  set_property -dict [ list \
-   CONFIG.c_dlytmr_resolution {1250} \
-   CONFIG.c_include_mm2s {1} \
-   CONFIG.c_include_mm2s_dre {1} \
-   CONFIG.c_include_mm2s_sf {1} \
-   CONFIG.c_include_s2mm {0} \
-   CONFIG.c_include_sg {0} \
-   CONFIG.c_m_axi_mm2s_data_width {64} \
-   CONFIG.c_m_axis_mm2s_tdata_width {64} \
-   CONFIG.c_mm2s_burst_size {64} \
-   CONFIG.c_sg_length_width {23} \
- ] $dm_0
-
-  # Create instance: dm_1, and set properties
-  set dm_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 dm_1 ]
-  set_property -dict [ list \
-   CONFIG.c_dlytmr_resolution {1250} \
-   CONFIG.c_include_mm2s {1} \
-   CONFIG.c_include_mm2s_dre {1} \
-   CONFIG.c_include_mm2s_sf {1} \
-   CONFIG.c_include_s2mm {0} \
-   CONFIG.c_include_sg {0} \
-   CONFIG.c_m_axi_mm2s_data_width {64} \
-   CONFIG.c_m_axis_mm2s_tdata_width {64} \
-   CONFIG.c_mm2s_burst_size {64} \
-   CONFIG.c_sg_length_width {23} \
- ] $dm_1
-
-  # Create instance: dm_2, and set properties
-  set dm_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 dm_2 ]
-  set_property -dict [ list \
-   CONFIG.c_dlytmr_resolution {1250} \
-   CONFIG.c_include_mm2s {0} \
-   CONFIG.c_include_s2mm {1} \
-   CONFIG.c_include_s2mm_dre {1} \
-   CONFIG.c_include_s2mm_sf {1} \
-   CONFIG.c_include_sg {0} \
-   CONFIG.c_m_axi_s2mm_data_width {64} \
-   CONFIG.c_s2mm_burst_size {64} \
-   CONFIG.c_sg_length_width {23} \
- ] $dm_2
-
-  # Create instance: dm_3, and set properties
-  set dm_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 dm_3 ]
-  set_property -dict [ list \
-   CONFIG.c_dlytmr_resolution {1250} \
-   CONFIG.c_include_mm2s {0} \
-   CONFIG.c_include_s2mm {1} \
-   CONFIG.c_include_s2mm_dre {1} \
-   CONFIG.c_include_s2mm_sf {1} \
-   CONFIG.c_include_sg {0} \
-   CONFIG.c_m_axi_s2mm_data_width {64} \
-   CONFIG.c_s2mm_burst_size {64} \
-   CONFIG.c_sg_length_width {23} \
- ] $dm_3
 
   # Create instance: ps7_0, and set properties
   set ps7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 ps7_0 ]
@@ -1134,7 +999,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_USE_CR_FABRIC {1} \
    CONFIG.PCW_USE_DDR_BYPASS {0} \
    CONFIG.PCW_USE_DEBUG {0} \
-   CONFIG.PCW_USE_DEFAULT_ACP_USER_VAL {1} \
+   CONFIG.PCW_USE_DEFAULT_ACP_USER_VAL {0} \
    CONFIG.PCW_USE_DMA0 {0} \
    CONFIG.PCW_USE_DMA1 {0} \
    CONFIG.PCW_USE_DMA2 {0} \
@@ -1143,11 +1008,11 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_USE_EXPANDED_PS_SLCR_REGISTERS {0} \
    CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
    CONFIG.PCW_USE_HIGH_OCM {0} \
-   CONFIG.PCW_USE_M_AXI_GP0 {1} \
+   CONFIG.PCW_USE_M_AXI_GP0 {0} \
    CONFIG.PCW_USE_M_AXI_GP1 {0} \
    CONFIG.PCW_USE_PROC_EVENT_BUS {0} \
    CONFIG.PCW_USE_PS_SLCR_REGISTERS {0} \
-   CONFIG.PCW_USE_S_AXI_ACP {1} \
+   CONFIG.PCW_USE_S_AXI_ACP {0} \
    CONFIG.PCW_USE_S_AXI_GP0 {0} \
    CONFIG.PCW_USE_S_AXI_GP1 {0} \
    CONFIG.PCW_USE_S_AXI_HP0 {0} \
@@ -1176,129 +1041,26 @@ proc create_root_design { parentCell } {
   # Create instance: rst_ps7_0_fclk3, and set properties
   set rst_ps7_0_fclk3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps7_0_fclk3 ]
 
-  # Create instance: sds_irq_const, and set properties
-  set sds_irq_const [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 sds_irq_const ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {0} \
-   CONFIG.CONST_WIDTH {1} \
- ] $sds_irq_const
-
-  # Create instance: top_ekf_1, and set properties
-  set top_ekf_1 [ create_bd_cell -type ip -vlnv xilinx.com:hls:top_ekf:1.0 top_ekf_1 ]
-
-  # Create instance: top_ekf_1_if, and set properties
-  set top_ekf_1_if [ create_bd_cell -type ip -vlnv xilinx.com:ip:adapter_v3_0:1.0 top_ekf_1_if ]
-  set_property -dict [ list \
-   CONFIG.C_INPUT_SCALAR_0_WIDTH {32} \
-   CONFIG.C_NUM_INPUT_BRAMs {1} \
-   CONFIG.C_NUM_INPUT_FIFOs {1} \
-   CONFIG.C_NUM_OUTPUT_BRAMs {1} \
-   CONFIG.C_NUM_OUTPUT_FIFOs {1} \
-   CONFIG.C_N_INPUT_SCALARS {1} \
-   CONFIG.M_AXIS_BRAM_0_DEPTH {64} \
-   CONFIG.M_AXIS_BRAM_0_DMWIDTH {64} \
-   CONFIG.M_AXIS_BRAM_0_MB_DEPTH {1} \
-   CONFIG.M_AXIS_BRAM_0_WIDTH {32} \
-   CONFIG.M_AXIS_FIFO_0_BYTE_WIDTH {32} \
-   CONFIG.M_AXIS_FIFO_0_DEPTH {1024} \
-   CONFIG.M_AXIS_FIFO_0_DMWIDTH {64} \
-   CONFIG.M_AXIS_FIFO_0_WIDTH {32} \
-   CONFIG.S_AXIS_BRAM_0_DEPTH {182} \
-   CONFIG.S_AXIS_BRAM_0_DMWIDTH {64} \
-   CONFIG.S_AXIS_BRAM_0_MB_DEPTH {1} \
-   CONFIG.S_AXIS_BRAM_0_WIDTH {32} \
-   CONFIG.S_AXIS_FIFO_0_BYTE_WIDTH {32} \
-   CONFIG.S_AXIS_FIFO_0_DEPTH {1024} \
-   CONFIG.S_AXIS_FIFO_0_DMWIDTH {64} \
-   CONFIG.S_AXIS_FIFO_0_WIDTH {32} \
- ] $top_ekf_1_if
-
   # Create instance: xlconcat_0, and set properties
   set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
   set_property -dict [ list \
-   CONFIG.NUM_PORTS {16} \
+   CONFIG.NUM_PORTS {1} \
  ] $xlconcat_0
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_ic_ps7_0_M_AXI_GP0_M00_AXI [get_bd_intf_pins axi_ic_ps7_0_M_AXI_GP0/M00_AXI] [get_bd_intf_pins top_ekf_1_if/S_AXI]
-  connect_bd_intf_net -intf_net axi_ic_ps7_0_M_AXI_GP0_M01_AXI [get_bd_intf_pins axi_ic_ps7_0_M_AXI_GP0/M01_AXI] [get_bd_intf_pins dm_0/S_AXI_LITE]
-  connect_bd_intf_net -intf_net axi_ic_ps7_0_M_AXI_GP0_M02_AXI [get_bd_intf_pins axi_ic_ps7_0_M_AXI_GP0/M02_AXI] [get_bd_intf_pins dm_1/S_AXI_LITE]
-  connect_bd_intf_net -intf_net axi_ic_ps7_0_M_AXI_GP0_M03_AXI [get_bd_intf_pins axi_ic_ps7_0_M_AXI_GP0/M03_AXI] [get_bd_intf_pins dm_2/S_AXI_LITE]
-  connect_bd_intf_net -intf_net axi_ic_ps7_0_M_AXI_GP0_M04_AXI [get_bd_intf_pins axi_ic_ps7_0_M_AXI_GP0/M04_AXI] [get_bd_intf_pins dm_3/S_AXI_LITE]
-  connect_bd_intf_net -intf_net axi_ic_ps7_0_S_AXI_ACP_M00_AXI [get_bd_intf_pins axi_ic_ps7_0_S_AXI_ACP/M00_AXI] [get_bd_intf_pins ps7_0/S_AXI_ACP]
-  connect_bd_intf_net -intf_net dm_0_M_AXIS_MM2S [get_bd_intf_pins dm_0/M_AXIS_MM2S] [get_bd_intf_pins top_ekf_1_if/S_AXIS_FIFO_0]
-  connect_bd_intf_net -intf_net dm_0_M_AXI_MM2S [get_bd_intf_pins axi_ic_ps7_0_S_AXI_ACP/S00_AXI] [get_bd_intf_pins dm_0/M_AXI_MM2S]
-  connect_bd_intf_net -intf_net dm_1_M_AXIS_MM2S [get_bd_intf_pins dm_1/M_AXIS_MM2S] [get_bd_intf_pins top_ekf_1_if/S_AXIS_BRAM_0]
-  connect_bd_intf_net -intf_net dm_1_M_AXI_MM2S [get_bd_intf_pins axi_ic_ps7_0_S_AXI_ACP/S01_AXI] [get_bd_intf_pins dm_1/M_AXI_MM2S]
-  connect_bd_intf_net -intf_net dm_2_M_AXI_S2MM [get_bd_intf_pins axi_ic_ps7_0_S_AXI_ACP/S02_AXI] [get_bd_intf_pins dm_2/M_AXI_S2MM]
-  connect_bd_intf_net -intf_net dm_3_M_AXI_S2MM [get_bd_intf_pins axi_ic_ps7_0_S_AXI_ACP/S03_AXI] [get_bd_intf_pins dm_3/M_AXI_S2MM]
   connect_bd_intf_net -intf_net ps7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins ps7_0/DDR]
   connect_bd_intf_net -intf_net ps7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins ps7_0/FIXED_IO]
-  connect_bd_intf_net -intf_net ps7_0_M_AXI_GP0 [get_bd_intf_pins axi_ic_ps7_0_M_AXI_GP0/S00_AXI] [get_bd_intf_pins ps7_0/M_AXI_GP0]
-  connect_bd_intf_net -intf_net top_ekf_1_if_M_AXIS_BRAM_0 [get_bd_intf_pins dm_2/S_AXIS_S2MM] [get_bd_intf_pins top_ekf_1_if/M_AXIS_BRAM_0]
-  connect_bd_intf_net -intf_net top_ekf_1_if_M_AXIS_FIFO_0 [get_bd_intf_pins dm_3/S_AXIS_S2MM] [get_bd_intf_pins top_ekf_1_if/M_AXIS_FIFO_0]
-  connect_bd_intf_net -intf_net top_ekf_1_if_ap_ctrl [get_bd_intf_pins top_ekf_1/ap_ctrl] [get_bd_intf_pins top_ekf_1_if/ap_ctrl]
-  connect_bd_intf_net -intf_net top_ekf_1_output_V [get_bd_intf_pins top_ekf_1/output_V] [get_bd_intf_pins top_ekf_1_if/AP_FIFO_OARG_0]
-  connect_bd_intf_net -intf_net top_ekf_1_params_V_PORTA [get_bd_intf_pins top_ekf_1/params_V_PORTA] [get_bd_intf_pins top_ekf_1_if/AP_BRAM_IARG_0_0]
-  connect_bd_intf_net -intf_net top_ekf_1_pout_V_PORTA [get_bd_intf_pins top_ekf_1/pout_V_PORTA] [get_bd_intf_pins top_ekf_1_if/AP_BRAM_OARG_0_0]
-  connect_bd_intf_net -intf_net top_ekf_1_xin_V [get_bd_intf_pins top_ekf_1/xin_V] [get_bd_intf_pins top_ekf_1_if/AP_FIFO_IARG_0]
 
   # Create port connections
-  connect_bd_net -net axcache_0xE_dout [get_bd_pins axcache_0xE/dout] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S00_AXI_arcache] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S01_AXI_arcache] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S02_AXI_awcache] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S03_AXI_awcache]
   connect_bd_net -net constant0_dout [get_bd_pins constant0/dout] [get_bd_pins xlconcat_0/In0]
-  connect_bd_net -net ps7_0_FCLK_CLK0 [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/ACLK] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M00_ACLK] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M01_ACLK] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M02_ACLK] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M03_ACLK] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M04_ACLK] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/S00_ACLK] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/ACLK] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/M00_ACLK] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S00_ACLK] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S01_ACLK] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S02_ACLK] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S03_ACLK] [get_bd_pins dm_0/m_axi_mm2s_aclk] [get_bd_pins dm_0/s_axi_lite_aclk] [get_bd_pins dm_1/m_axi_mm2s_aclk] [get_bd_pins dm_1/s_axi_lite_aclk] [get_bd_pins dm_2/m_axi_s2mm_aclk] [get_bd_pins dm_2/s_axi_lite_aclk] [get_bd_pins dm_3/m_axi_s2mm_aclk] [get_bd_pins dm_3/s_axi_lite_aclk] [get_bd_pins ps7_0/FCLK_CLK0] [get_bd_pins ps7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0/S_AXI_ACP_ACLK] [get_bd_pins rst_ps7_0_fclk0/slowest_sync_clk] [get_bd_pins top_ekf_1_if/acc_aclk] [get_bd_pins top_ekf_1_if/m_axis_bram_0_aclk] [get_bd_pins top_ekf_1_if/m_axis_fifo_0_aclk] [get_bd_pins top_ekf_1_if/s_axi_aclk] [get_bd_pins top_ekf_1_if/s_axis_bram_0_aclk] [get_bd_pins top_ekf_1_if/s_axis_fifo_0_aclk]
+  connect_bd_net -net ps7_0_FCLK_CLK0 [get_bd_pins ps7_0/FCLK_CLK0] [get_bd_pins rst_ps7_0_fclk0/slowest_sync_clk]
   connect_bd_net -net ps7_0_FCLK_CLK1 [get_bd_pins ps7_0/FCLK_CLK1] [get_bd_pins rst_ps7_0_fclk1/slowest_sync_clk]
   connect_bd_net -net ps7_0_FCLK_CLK2 [get_bd_pins ps7_0/FCLK_CLK2] [get_bd_pins rst_ps7_0_fclk2/slowest_sync_clk]
   connect_bd_net -net ps7_0_FCLK_CLK3 [get_bd_pins ps7_0/FCLK_CLK3] [get_bd_pins rst_ps7_0_fclk3/slowest_sync_clk]
   connect_bd_net -net ps7_0_FCLK_RESET0_N [get_bd_pins ps7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_fclk0/ext_reset_in] [get_bd_pins rst_ps7_0_fclk1/ext_reset_in] [get_bd_pins rst_ps7_0_fclk2/ext_reset_in] [get_bd_pins rst_ps7_0_fclk3/ext_reset_in]
-  connect_bd_net -net rst_ps7_0_fclk0_interconnect_aresetn [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/ARESETN] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M00_ARESETN] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M01_ARESETN] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M02_ARESETN] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M03_ARESETN] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/M04_ARESETN] [get_bd_pins axi_ic_ps7_0_M_AXI_GP0/S00_ARESETN] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/ARESETN] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/M00_ARESETN] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S00_ARESETN] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S01_ARESETN] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S02_ARESETN] [get_bd_pins axi_ic_ps7_0_S_AXI_ACP/S03_ARESETN] [get_bd_pins rst_ps7_0_fclk0/interconnect_aresetn]
-  connect_bd_net -net rst_ps7_0_fclk0_peripheral_aresetn [get_bd_pins dm_0/axi_resetn] [get_bd_pins dm_1/axi_resetn] [get_bd_pins dm_2/axi_resetn] [get_bd_pins dm_3/axi_resetn] [get_bd_pins rst_ps7_0_fclk0/peripheral_aresetn] [get_bd_pins top_ekf_1_if/acc_aresetn] [get_bd_pins top_ekf_1_if/m_axis_bram_0_aresetn] [get_bd_pins top_ekf_1_if/m_axis_fifo_0_aresetn] [get_bd_pins top_ekf_1_if/s_axi_aresetn] [get_bd_pins top_ekf_1_if/s_axis_bram_0_aresetn] [get_bd_pins top_ekf_1_if/s_axis_fifo_0_aresetn]
-  connect_bd_net -net sds_irq_const_dout [get_bd_pins sds_irq_const/dout] [get_bd_pins xlconcat_0/In1] [get_bd_pins xlconcat_0/In2] [get_bd_pins xlconcat_0/In3] [get_bd_pins xlconcat_0/In4] [get_bd_pins xlconcat_0/In5] [get_bd_pins xlconcat_0/In6] [get_bd_pins xlconcat_0/In7] [get_bd_pins xlconcat_0/In8] [get_bd_pins xlconcat_0/In9] [get_bd_pins xlconcat_0/In10] [get_bd_pins xlconcat_0/In11] [get_bd_pins xlconcat_0/In12] [get_bd_pins xlconcat_0/In13] [get_bd_pins xlconcat_0/In14] [get_bd_pins xlconcat_0/In15]
-  connect_bd_net -net top_ekf_1_if_ap_clk [get_bd_pins top_ekf_1/ap_clk] [get_bd_pins top_ekf_1_if/ap_clk]
-  connect_bd_net -net top_ekf_1_if_ap_iscalar_0_dout [get_bd_pins top_ekf_1/datalen] [get_bd_pins top_ekf_1_if/ap_iscalar_0_dout]
-  connect_bd_net -net top_ekf_1_if_ap_resetn [get_bd_pins top_ekf_1/ap_rst_n] [get_bd_pins top_ekf_1_if/ap_resetn]
   connect_bd_net -net xlconcat_0_dout [get_bd_pins ps7_0/IRQ_F2P] [get_bd_pins xlconcat_0/dout]
 
   # Create address segments
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces dm_0/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_DDR_LOWOCM] SEG_ps7_0_ACP_DDR_LOWOCM
-  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces dm_0/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_QSPI_LINEAR] SEG_ps7_0_ACP_QSPI_LINEAR
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces dm_1/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_DDR_LOWOCM] SEG_ps7_0_ACP_DDR_LOWOCM
-  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces dm_1/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_QSPI_LINEAR] SEG_ps7_0_ACP_QSPI_LINEAR
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces dm_2/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_DDR_LOWOCM] SEG_ps7_0_ACP_DDR_LOWOCM
-  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces dm_2/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_QSPI_LINEAR] SEG_ps7_0_ACP_QSPI_LINEAR
-  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces dm_3/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_DDR_LOWOCM] SEG_ps7_0_ACP_DDR_LOWOCM
-  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces dm_3/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_QSPI_LINEAR] SEG_ps7_0_ACP_QSPI_LINEAR
-  create_bd_addr_seg -range 0x00010000 -offset 0x40400000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs dm_0/S_AXI_LITE/Reg] SEG_dm_0_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40410000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs dm_1/S_AXI_LITE/Reg] SEG_dm_1_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40420000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs dm_2/S_AXI_LITE/Reg] SEG_dm_2_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x40430000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs dm_3/S_AXI_LITE/Reg] SEG_dm_3_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C00000 [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs top_ekf_1_if/S_AXI/reg0] SEG_top_ekf_1_if_reg0
-
-  # Exclude Address Segments
-  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces dm_0/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_IOP] SEG_ps7_0_ACP_IOP
-  exclude_bd_addr_seg [get_bd_addr_segs dm_0/Data_MM2S/SEG_ps7_0_ACP_IOP]
-
-  create_bd_addr_seg -range 0x40000000 -offset 0x40000000 [get_bd_addr_spaces dm_0/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_M_AXI_GP0] SEG_ps7_0_ACP_M_AXI_GP0
-  exclude_bd_addr_seg [get_bd_addr_segs dm_0/Data_MM2S/SEG_ps7_0_ACP_M_AXI_GP0]
-
-  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces dm_1/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_IOP] SEG_ps7_0_ACP_IOP
-  exclude_bd_addr_seg [get_bd_addr_segs dm_1/Data_MM2S/SEG_ps7_0_ACP_IOP]
-
-  create_bd_addr_seg -range 0x40000000 -offset 0x40000000 [get_bd_addr_spaces dm_1/Data_MM2S] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_M_AXI_GP0] SEG_ps7_0_ACP_M_AXI_GP0
-  exclude_bd_addr_seg [get_bd_addr_segs dm_1/Data_MM2S/SEG_ps7_0_ACP_M_AXI_GP0]
-
-  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces dm_2/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_IOP] SEG_ps7_0_ACP_IOP
-  exclude_bd_addr_seg [get_bd_addr_segs dm_2/Data_S2MM/SEG_ps7_0_ACP_IOP]
-
-  create_bd_addr_seg -range 0x40000000 -offset 0x40000000 [get_bd_addr_spaces dm_2/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_M_AXI_GP0] SEG_ps7_0_ACP_M_AXI_GP0
-  exclude_bd_addr_seg [get_bd_addr_segs dm_2/Data_S2MM/SEG_ps7_0_ACP_M_AXI_GP0]
-
-  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces dm_3/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_IOP] SEG_ps7_0_ACP_IOP
-  exclude_bd_addr_seg [get_bd_addr_segs dm_3/Data_S2MM/SEG_ps7_0_ACP_IOP]
-
-  create_bd_addr_seg -range 0x40000000 -offset 0x40000000 [get_bd_addr_spaces dm_3/Data_S2MM] [get_bd_addr_segs ps7_0/S_AXI_ACP/ACP_M_AXI_GP0] SEG_ps7_0_ACP_M_AXI_GP0
-  exclude_bd_addr_seg [get_bd_addr_segs dm_3/Data_S2MM/SEG_ps7_0_ACP_M_AXI_GP0]
-
 
 
   # Restore current instance
