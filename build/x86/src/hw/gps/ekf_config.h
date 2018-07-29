@@ -35,7 +35,8 @@ extern "C" {
 #pragma SDS data access_pattern(xin:SEQUENTIAL, output:SEQUENTIAL)
 #pragma SDS data copy(xin[0:(datalen*(Nsats*(Nxyz+1)))], output[0:(datalen*Nxyz)])
 #pragma SDS data data_mover(xin:AXIDMA_SIMPLE, params:AXIDMA_SIMPLE, output:AXIDMA_SIMPLE, pout:AXIDMA_SIMPLE)
-#pragma SDS data mem_attribute(xin:PHYSICAL_CONTIGUOUS, params:PHYSICAL_CONTIGUOUS, output:PHYSICAL_CONTIGUOUS, pout: PHYSICAL_CONTIGUOUS)
+#pragma SDS data mem_attribute(xin:PHYSICAL_CONTIGUOUS, output:PHYSICAL_CONTIGUOUS)
+#pragma SDS data mem_attribute(params:PHYSICAL_CONTIGUOUS, pout: PHYSICAL_CONTIGUOUS)
 void top_ekf(port_t *xin, port_t params[182], port_t *output, port_t pout[Nsta*Nsta], int datalen);
 
 #ifdef __cplusplus

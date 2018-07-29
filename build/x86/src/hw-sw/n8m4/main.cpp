@@ -50,8 +50,9 @@ static int32_t toFixed(float a)
 	int32_t result;
 	int32_t val = 1 << frac_width; //logical shift
 	
-	if (a<0) result = a*val-0.5; //rounding
-	else result = a*val +0.5;
+	//if (a<0) result = a*val-0.5; //rounding
+	//else result = a*val +0.5;
+	result = a*val;
 	
 	return result;
 }
@@ -90,11 +91,8 @@ static void readdata(port_t *obs, float *meas, const char fname[], int datalen)
     fclose(fp);
 }
 
-static void writedata(port_t *output, float *output_fl, const char fname[], int datalen)
+static void writedata(port_t *output, float *output_fl, int datalen)
 {
-    FILE * fp = fopen(fname, "w");
-    fprintf(fp, "X,Y,Z\n");
-
 	int i,j;
 
 	// convert outputs to float
@@ -108,9 +106,8 @@ static void writedata(port_t *output, float *output_fl, const char fname[], int 
     for (i=0; i<datalen; i++) {
         printf("[%d] %f %f %f\n", i, output_fl[i*Nsta + 0], output_fl[i*Nsta + 2], output_fl[i*Nsta + 4]);
     }
-    printf("Wrote file %s\n", fname);
+    printf("Finished EKF\n");
 
-    fclose(fp);
 }
 
 static void append_result(port_t *xout, port_t *output, int i)
@@ -184,7 +181,6 @@ int main(int argc, char ** argv)
 {    
     // input data file
     static const char INFILE[] = "gps_data.csv";
-    static const char OUTFILE[] = "ekf.csv";
 	
     // Make a place to store the data from the file and the output of the EKF
     int datalen = 50;
@@ -245,6 +241,10 @@ int main(int argc, char ** argv)
 	int ctrl;
 	int w1 = Nsta;
 	int w2 = Mobs;
+
+	struct timespec * start = (struct timespec *)malloc(sizeof(struct timespec));
+	struct timespec * stop = (struct timespec *)malloc(sizeof(struct timespec));
+	clock_gettime(CLOCK_REALTIME, start);
 	
 	// init
 	ctrl=0;
@@ -258,9 +258,6 @@ int main(int argc, char ** argv)
 		xout_fl[j] = toFloat(oval_fx);
 	}
 
-	struct timespec * start = (struct timespec *)malloc(sizeof(struct timespec));
-	struct timespec * stop = (struct timespec *)malloc(sizeof(struct timespec));
-	clock_gettime(CLOCK_REALTIME, start);
 	// run ekf
 	ctrl = 1; 
 	for (int i=1; i<datalen; i++) {	
@@ -277,7 +274,7 @@ int main(int argc, char ** argv)
 	}
 	clock_gettime(CLOCK_REALTIME, stop);
 	
-	writedata(xout, output_fl, OUTFILE, datalen);
+	writedata(xout, output_fl, datalen);
 	
 	int totalTime = (stop->tv_sec*SEC_TO_NS + stop->tv_nsec) - (start->tv_sec*SEC_TO_NS + start->tv_nsec);
 	printf("time = %f s\n", ((float)totalTime/1000000000));

@@ -48,7 +48,7 @@ int main(int argc, char ** argv)
 	// allocate memory 
 	obs= (port_t *)sds_alloc_non_cacheable(datalen*Mobs*sizeof(port_t));
 	params = (port_t *)sds_alloc_non_cacheable(PARAMS_IN*sizeof(port_t));
-    	xout = (port_t *)sds_alloc_non_cacheable(datalen*Nsta*sizeof(port_t));
+    xout = (port_t *)sds_alloc_non_cacheable(datalen*Nsta*sizeof(port_t));
 	fx_i = (port_t *)sds_alloc_non_cacheable(Nsta*sizeof(port_t));
 	hx_i = (port_t *)sds_alloc_non_cacheable(Mobs*sizeof(port_t));
 	F_i = (port_t *)sds_alloc_non_cacheable(Nsta*Nsta*sizeof(port_t));

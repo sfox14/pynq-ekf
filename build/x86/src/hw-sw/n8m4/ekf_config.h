@@ -26,8 +26,8 @@ extern "C" {
 #pragma SDS data copy(F_i[0:(w1*w1)], H_i[0:(w1*w2)])
 #pragma SDS data data_mover(obs:AXIDMA_SIMPLE, params:AXIDMA_SIMPLE, output:AXIDMA_SIMPLE)
 #pragma SDS data data_mover(fx_i:AXIDMA_SIMPLE, hx_i:AXIDMA_SIMPLE, F_i:AXIDMA_SIMPLE, H_i:AXIDMA_SIMPLE)
-#pragma SDS data mem_attribute(obs:PHYSICAL_CONTIGUOUS, params:PHYSICAL_CONTIGUOUS, output:PHYSICAL_CONTIGUOUS)
-#pragma SDS data mem_attribute(fx_i:PHYSICAL_CONTIGUOUS, hx_i:PHYSICAL_CONTIGUOUS, F_i:PHYSICAL_CONTIGUOUS, H_i:PHYSICAL_CONTIGUOUS)
+#pragma SDS data mem_attribute(obs:PHYSICAL_CONTIGUOUS|NON_CACHEABLE, params:PHYSICAL_CONTIGUOUS|NON_CACHEABLE, output:PHYSICAL_CONTIGUOUS|NON_CACHEABLE)
+#pragma SDS data mem_attribute(fx_i:PHYSICAL_CONTIGUOUS|NON_CACHEABLE, hx_i:PHYSICAL_CONTIGUOUS|NON_CACHEABLE, F_i:PHYSICAL_CONTIGUOUS|NON_CACHEABLE, H_i:PHYSICAL_CONTIGUOUS|NON_CACHEABLE)
 void top_ekf(	port_t *obs,
 				port_t fx_i[Nsta],
 				port_t hx_i[Mobs],
