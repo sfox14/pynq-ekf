@@ -10,6 +10,7 @@ BOARD :=
 PLATFORM := 
 DESIGN := hw-sw
 NAME := gps
+CLK_ID := 0
 
 # Target OS:
 #     linux (Default), standalone
@@ -59,7 +60,7 @@ $(pwd)/$(BUILD_DIR)/ekf.o \
 
 # SDS Options
 HW_FLAGS :=
-HW_FLAGS += -sds-hw top_ekf top_ekf.cpp -files $(pwd)/$(SRC_DIR)/ekf.cpp -clkid 0 -sds-end
+HW_FLAGS += -sds-hw top_ekf top_ekf.cpp -files $(pwd)/$(SRC_DIR)/ekf.cpp -clkid $(CLK_ID) -sds-end
 
 
 # Compilation and Link Flags

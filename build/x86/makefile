@@ -7,25 +7,26 @@
 #+-------------------------------------------------------------------------------
 
 BOARD := Pynq-Z1 
-PLATFORM := 
+PLATFORM :=
+CLK_ID := 0 
 
 .PHONY: all gps n2m2 n8m4
-all: help gps
+all: help n8m4
 
 gps:
-	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw NAME=gps
+	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw NAME=gps CLK_ID=$(CLK_ID)
 
 n2m2:
-	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw-sw NAME=n2m2
+	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw-sw NAME=n2m2 CLK_ID=$(CLK_ID)
 
 n8m4:
-	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw-sw NAME=n8m4
+	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw-sw NAME=n8m4 CLK_ID=$(CLK_ID)
 
 clean:
 	rm -rf ./$(BOARD) .Xil
 	
 cleanall: clean
-	rm -rf ./Pynq-Z1 ./Pynq-Z2 ./Ultra96
+	rm -rf ./Pynq-Z1 ./Pynq-Z2 ./Ultra96 ./ZCU104
 
 ECHO:= @echo
 
@@ -47,5 +48,7 @@ help::
 	$(ECHO) "	PLATFORM:	path to the platform (.pfm) file" 
 	$(ECHO) "					eg. home/usr/sdx-platforms/Pynq-Z1/bare"
 	$(ECHO) "	BOARD:		name of the board (default=Pynq-Z1)"
-	$(ECHO) "					eg. Pynq-Z1, Pynq-Z2, Ultra96"
+	$(ECHO) "					eg. Pynq-Z1, Pynq-Z2, Ultra96, ZCU104"
+	$(ECHO) "	CLK_ID:		platform clock id"
+	$(ECHO) "					eg. 0, 1 -> number of clocks specified in platform"
 	$(ECHO) ""
