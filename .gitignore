@@ -172,4 +172,4 @@ venv.bak/
 # SDSoC
 *.dat
 !/boards/*/*/*.so
-!/build/dist/*/*/*/*.o
+!/build/x86/dist/*/*/*/*.o
