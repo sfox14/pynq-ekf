@@ -184,7 +184,7 @@ int main(int argc, char ** argv)
 	
     // Make a place to store the data from the file and the output of the EKF
     int datalen = 50;
-	int PARAMS_IN = Nsta+(2*Nsta*Nsta)+(Mobs*Mobs);
+	int PARAMS_IN = (2*Nsta*Nsta)+(Mobs*Mobs);
 	
 	// hardware I/O
 	port_t *obs, *xout, *params;
@@ -215,11 +215,10 @@ int main(int argc, char ** argv)
 	xout_fl[6] = 0.02;
 	xout_fl[7] = 0.0;
 	
-	/* params[Nsta+(2*Nsta*Nsta)+(Mobs*Mobs)]:
-		1 - x[Nsta]
-		2 - P[Nsta*Nsta]
-		3 - Q[Nsta*Nsta]
-		4 - R[Mobs*Mobs]
+	/* params[(2*Nsta*Nsta)+(Mobs*Mobs)]:
+		1 - P[Nsta*Nsta]
+		2 - Q[Nsta*Nsta]
+		3 - R[Mobs*Mobs]
 	*/
 	#include "params.dat"
 	
@@ -241,6 +240,7 @@ int main(int argc, char ** argv)
 	int ctrl;
 	int w1 = Nsta;
 	int w2 = Mobs;
+	//int w3 = (2*Nsta*Nsta)+(Mobs*Mobs);
 
 	struct timespec * start = (struct timespec *)malloc(sizeof(struct timespec));
 	struct timespec * stop = (struct timespec *)malloc(sizeof(struct timespec));

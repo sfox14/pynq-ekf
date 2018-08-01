@@ -113,6 +113,8 @@ void model(data_t x[Nsta], data_t fx[Nsta], data_t F[Nsta][Nsta],
     int i, j;
     data_t imm;
 
+	#pragma HLS pipeline
+	
 	/* compute f(x) */
     for (j=0; j<8; j+=2) {
         fx[j] = x[j] + x[j+1];
@@ -213,6 +215,22 @@ void top_ekf(port_t *xin, port_t params[182], port_t *output,
 
 	/* ---------------------- HLS PRAGMAs ----------------------------- */
 
+	#pragma HLS array_partition variable=F block factor=8 dim=2
+	#pragma HLS array_partition variable=P block factor=8 dim=1
+	#pragma HLS array_partition variable=Ft block factor=8 dim=1
+	#pragma HLS array_partition variable=H block factor=8 dim=2
+	#pragma HLS array_partition variable=Ht block factor=8 dim=1
+	
+	#pragma HLS array_partition variable=tmp0 block factor=8 dim=2
+	#pragma HLS array_partition variable=tmp1 block factor=4 dim=2
+	#pragma HLS array_partition variable=tmp4 block factor=4 dim=1
+	#pragma HLS array_partition variable=tmp6 block factor=8 dim=2
+	#pragma HLS array_partition variable=tmp5 block factor=4 dim=1
+	#pragma HLS array_partition variable=tmp7 block factor=8 dim=2
+	
+	#pragma HLS array_partition variable=G block factor=4 dim=2
+	#pragma HLS array_partition variable=Pp block factor=8 dim=1
+	
 	/* ---------------------------------------------------------------- */
 
 	static const int num_inputs = Nsats*(Nxyz+1);

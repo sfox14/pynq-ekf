@@ -238,12 +238,12 @@ static void step2_1(data_t H[Mobs][Nsta], data_t Pp[Nsta][Nsta],
 	#pragma HLS inline off
 	
 	int bsize = BSIZE_2;
-
+	
 	int i, j, l, k;
 	
 	for (i=0; i<Mobs; i++) {
 		for (j=0; j<Nsta; j++) {
-			#if (PARTIAL_N_2==0)
+			#if (PARTIAL_N==0)
 			#pragma HLS pipeline
 			#endif
 			data_t result = 0;
@@ -275,7 +275,7 @@ static void step2_2(data_t Pp[Nsta][Nsta], data_t Ht[Nsta][Mobs], data_t tmp1[Ns
 	
 	for (i=0; i<Nsta; i++) {
 		for (j=0; j<Mobs; j++) {
-			#if (PARTIAL_N_2==0)
+			#if (PARTIAL_N==0)
 			#pragma HLS pipeline
 			#endif
 			data_t result = 0;
@@ -306,7 +306,7 @@ static void step2_3(data_t tmp6[Mobs][Nsta], data_t Ht[Nsta][Mobs],
 	
 	for (i=0; i<Mobs; i++) {
 		for (j=0; j<Mobs; j++) {
-			#if (PARTIAL_N_2==0)
+			#if (PARTIAL_N==0)
 			#pragma HLS pipeline
 			#endif
 			data_t result = 0;
@@ -556,15 +556,15 @@ void ekf_step(	data_t x[Nsta],
 	static data_t tmp6[Mobs][Nsta] = {{0}};
 	static data_t tmp7[Nsta][Nsta] = {{0}};
 
-	#pragma HLS array_partition variable=tmp0 block factor=8 dim=2
-	#pragma HLS array_partition variable=tmp1 block factor=4 dim=2  //M
-	#pragma HLS array_partition variable=tmp4 block factor=4 dim=1  //M
-	#pragma HLS array_partition variable=tmp6 block factor=8 dim=2
-	#pragma HLS array_partition variable=tmp7 block factor=8 dim=2
-	#pragma HLS array_partition variable=Pp_1 block factor=8 dim=2
-	#pragma HLS array_partition variable=Pp_2 block factor=8 dim=1
-	#pragma HLS array_partition variable=K block factor=4 dim=2     //M
-	#pragma HLS array_partition variable=tmp5 block factor=4 dim=1  //M
+	#pragma HLS array_partition variable=tmp0 block factor=18 dim=2
+	#pragma HLS array_partition variable=tmp1 block factor=8 dim=2  //M
+	#pragma HLS array_partition variable=tmp4 block factor=8 dim=1  //M
+	#pragma HLS array_partition variable=tmp6 block factor=18 dim=2
+	#pragma HLS array_partition variable=tmp7 block factor=18 dim=2
+	#pragma HLS array_partition variable=Pp_1 block factor=18 dim=2
+	#pragma HLS array_partition variable=Pp_2 block factor=18 dim=1
+	#pragma HLS array_partition variable=K block factor=8 dim=2     //M
+	#pragma HLS array_partition variable=tmp5 block factor=8 dim=1  //M
 	
 	int i, j;
 	

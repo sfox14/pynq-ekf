@@ -11,7 +11,8 @@ static void LU(data_t A[Mobs][Mobs])
 	int i,j,k;
 	data_t x;
 	
-	for(k=0;k<Mobs-1;k++) {
+	for(k=0;k<Mobs-1;k++) {		
+		#pragma HLS pipeline		
 		for(j=k+1;j<Mobs;j++) {
 			x = (data_t)(A[j][k])/A[k][k];
 			for(i=k;i<Mobs;i++) {  
@@ -37,6 +38,7 @@ static void LUInv(data_t A[Mobs][Mobs], data_t Ainv[Mobs][Mobs])
 	
 	// Find the Inverse
  	for(m=0; m<Mobs; m++) { 
+		#pragma HLS pipeline
         // only d[m] = 1
 		for(i=0; i<Mobs; i++) {
 			d[i] = 0;
@@ -123,8 +125,6 @@ static void cholsl(data_t A[Mobs][Mobs], data_t a[Mobs][Mobs], data_t p[Mobs])
 {
 	#pragma HLS INLINE off
 	#pragma HLS INLINE region
-	
-	//#pragma HLS pipeline II=512
 	
 	int i,j,k;
 	
@@ -347,9 +347,6 @@ static void step1(data_t F[Nsta][Nsta], data_t P[Nsta][Nsta],
 {
 	#pragma HLS inline off
 	#pragma HLS inline region
-	
-	#pragma HLS array_partition variable=F block factor=2 dim=2
-	#pragma HLS array_partition variable=P block factor=2 dim=2
 
 	/*  Note: In this example, F is a constant binary matrix. Therefore, we
 		can implement the matrix multiplication using adds only */
@@ -383,9 +380,9 @@ static void step2(data_t H[Mobs][Nsta], data_t Pp[Nsta][Nsta],
 	step2_3(tmp6, Ht, R, tmp3);
 	
 	/* tmp4 = (tmp3)^-1 */
-    cholsl(tmp3, tmp4, tmp5);
+    //cholsl(tmp3, tmp4, tmp5);
 	//luinv(tmp3, tmp4);
-	//LUInv(tmp3, tmp4);
+	LUInv(tmp3, tmp4);
 	
 	/* G = tmp1 * tmp4 */
     step2_4(tmp1, tmp4, G);	

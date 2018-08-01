@@ -12,9 +12,9 @@ typedef ap_fixed<bit_width, (bit_width-frac_width)> data_t;
 typedef ap_uint<bit_width> port_t;
 
 /* states */
-#define Nsta 8
+#define Nsta 72
 /* observables */
-#define Mobs 4
+#define Mobs 8
 
 /* If Z1 */
 //#define Z1_ENABLE 0
@@ -29,17 +29,17 @@ typedef ap_uint<bit_width> port_t;
 		(BSIZE_3 <= Mobs) and (Mobs%BSIZE_3 == 0)
 		(BSIZE_4 <= Nsta) and (Nsta%BSIZE_4 == 0)
 */
-#define BSIZE_1 4
-#define BSIZE_2 8
-#define BSIZE_3 4
-#define BSIZE_4 8
+#define BSIZE_1 8
+#define BSIZE_2 36
+#define BSIZE_3 8
+#define BSIZE_4 36
 
 /* Assign 1 if the BSIZE_1 != Mobs or BSIZE_2 != Nsta */
-#define PARTIAL_N 0
+#define PARTIAL_N 1
 #define PARTIAL_M 0
 
 /* Assign 1 if BSIZE_4 != Nsta */
-#define PARTIAL_N_2 0
+#define PARTIAL_N_2 1
 
 
 #ifdef __cplusplus

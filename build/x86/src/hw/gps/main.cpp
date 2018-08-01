@@ -149,7 +149,7 @@ int main(int argc, char ** argv)
 	#include "params.dat"
 	
 	struct timespec * start = (struct timespec *)malloc(sizeof(struct timespec));
-    	struct timespec * stop = (struct timespec *)malloc(sizeof(struct timespec));
+    struct timespec * stop = (struct timespec *)malloc(sizeof(struct timespec));
 
 	// write csv data to xin
 	readdata(xin, INFILE, datalen);
@@ -159,13 +159,13 @@ int main(int argc, char ** argv)
 	clock_gettime(CLOCK_REALTIME, stop);
 
 	writedata(output, output_fl, OUTFILE, datalen);
-	
+
 	int totalTime = (stop->tv_sec*SEC_TO_NS + stop->tv_nsec) - (start->tv_sec*SEC_TO_NS + start->tv_nsec);
-    	printf("time = %f s\n", ((float)totalTime/1000000000));
+    printf("time = %f s\n", ((float)totalTime/1000000000));
 	
 	sds_free(xin);
-    	sds_free(params);
-    	sds_free(output);
+    sds_free(params);
+    sds_free(output);
 	sds_free(pout);
 	free(output_fl);
 

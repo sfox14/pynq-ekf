@@ -118,38 +118,38 @@ void top_ekf( 	port_t obs[Mobs],
 	
 	/* ---------------------- HLS PRAGMAs ----------------------------- */
 	//step1_1
-	#pragma HLS array_partition variable=F block factor=8 dim=2
-	#pragma HLS array_partition variable=P block factor=8 dim=1
+	#pragma HLS array_partition variable=F block factor=18 dim=2
+	#pragma HLS array_partition variable=P block factor=18 dim=1
 	
 	//step1_2
-	//#pragma HLS array_partition variable=tmp0 block factor=8 dim=2
-	#pragma HLS array_partition variable=Ft block factor=8 dim=1
+	//#pragma HLS array_partition variable=tmp0 block factor=2 dim=2
+	#pragma HLS array_partition variable=Ft block factor=18 dim=1
 	
 	//step2_1
-	#pragma HLS array_partition variable=H_1 block factor=8 dim=2
-	//#pragma HLS array_partition variable=Pp block factor=8 dim=2
+	#pragma HLS array_partition variable=H_1 block factor=18 dim=2
+	//#pragma HLS array_partition variable=Pp block factor=2 dim=2
 	
 	//step2_2
-	//#pragma HLS array_partition variable=Pp_1 block factor=8 dim=2
-	#pragma HLS array_partition variable=Ht_1 block factor=8 dim=1
+	//#pragma HLS array_partition variable=Pp_1 block factor=2 dim=2
+	#pragma HLS array_partition variable=Ht_1 block factor=18 dim=1
 	
 	//step2_3
-	//#pragma HLS array_partition variable=tmp6 block factor=8 dim=2
-	#pragma HLS array_partition variable=Ht_2 block factor=8 dim=1
+	//#pragma HLS array_partition variable=tmp6 block factor=2 dim=2
+	#pragma HLS array_partition variable=Ht_2 block factor=18 dim=1
 	
 	//step2_4
-	//#pragma HLS array_partition variable=tmp1 block factor=8 dim=2
-	//#pragma HLS array_partition variable=tmp4 block factor=8 dim=1
+	//#pragma HLS array_partition variable=tmp1 block factor=2 dim=2
+	//#pragma HLS array_partition variable=tmp4 block factor=2 dim=1
 	
 	//step4_1
 	// maybe replicate H (needs to be dim=1)
-	#pragma HLS array_partition variable=H_2 block factor=4 dim=1  //M
-	//#pragma HLS array_partition variable=K block factor=4 dim=2
+	#pragma HLS array_partition variable=H_2 block factor=8 dim=1  //M
+	//#pragma HLS array_partition variable=K block factor=2 dim=2
 	
 	//step4_2
 	// maybe replicate Pp (needs to be dim=1
-	//#pragma HLS array_partition variable=Pp_2 block factor=8 dim=1
-	//#pragma HLS array_partition variable=tmp7 block factor=8 dim=2
+	//#pragma HLS array_partition variable=Pp_2 block factor=2 dim=1
+	//#pragma HLS array_partition variable=tmp7 block factor=2 dim=2
 	
 	//#pragma HLS RESOURCE variable=H_1 core=RAM_S2P_BRAM
 	
