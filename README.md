@@ -33,10 +33,6 @@ The Kalman Filter (KF) and Extended Kalman Filter (EKF) are recursive state esti
 For more information on Kalman Filters, [this course](http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/) provides good explanation and notes .
 
 
-
-
-
-
 ## 3. Design and Implementation:
 
 -------------------------------------------------------------------------------------------------------------------------
@@ -64,7 +60,9 @@ The figure below shows how the computation is separated between Processing Syste
 
 The PL implements the required matrix operations in a dataflow architecture. The figure below gives an illustration of the type and sequence of computation that is performed. The primary computational bottleneck is the matrix inversion. We implemented this via LU Decomposition ([app note](https://www.xilinx.com/support/documentation/application_notes/xapp1317-scalable-matrix-inverse-hls.pdf)). This design requires a relatively large amount of data from external memory each iteration. On small problems, this approach gives bad performance since the majority of time is spent transferring data between processor and FPGA. Furthermore, converting between Fixed and Floating point number representations is expensive and further reduces system throughput/performance.   
 
+<p align="center">
 <img src="./utils/imgs/dataflow.png" alt="Drawing" width="700"/>
+</p>
 
 #### Hardware (HW):
 
@@ -75,12 +73,15 @@ Given the performance drawbacks of the HW-SW co-design, it may be better to impl
 -------------------------------------------------------------------------------------------------------------------------
 
 Table 1 shows performance of the EKF accelerator on the GPS example. It assumes a model with **N=8** states and **M=4** observations, and is the same as the C/C++ model implemented [here](https://github.com/simondlevy/TinyEKF/). The dataset is generated in [make_dataset.py](./utils/python/make_dataset.py), and characterises a typical GPS system. The execution time of the accelerator was measured from callsites written in both Python and C, for SW-only, HW-only and hybrid HW-SW designs, and shows up to **45x speed-up** when the entire algorithm is deployed on the FPGA.                                                                                                                                          
-
+<p align="center">
 <img src="./utils/imgs/gps_performance.png" alt="Drawing" width="500"/>
+</p>
 
 The design can be scaled to support bigger problems and larger devices. Table 2, shows an EKF with N=72 and M=8 running on Zynq-Ultrascale+
 
+<p align="center">
 <img src="./utils/imgs/zcu104_performance.png" alt="Drawing" width="250"/>
+</p>
 
 ## 5. Build Flow:
 -------------------------------------------------------------------------------------------------------------------------
@@ -97,7 +98,11 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1> BOARD=<eg. Pynq-Z1, Ultra96> CLK_
 * `boards: ` List of boards currently supported, with their associated bitstreams and libraries.
 * `build: ` The source and scripts for the multi-board build flow
     * `arm: ` Makefile for linking SDSoC output object files on the board. This script is called from `setup.py` during pip install.
-    * `x86: ` Makefile and HLS/SDSoC source for re-building on a host machine.
+    * `x86: ` Host machine makefile
+      * `src: ` HLS/SDSoC source files
+         * `hw: ` Hardware-only architecture (eg. gps example)
+         * `hw-sw: ` Hybrid HW-SW architecture (eg. n8m4, n2m2, n72m8)
+      * `dist: ` Contains the compiled SDSoC object files from `make`
 * `ekf: ` Python source and API. Each design inherits from a base class and implements their own model.
     * `__init__.py: ` contains the EKF base class
     * `gps_ekf.py: ` python class for the GPS example
