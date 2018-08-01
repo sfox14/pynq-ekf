@@ -10,8 +10,8 @@ BOARD := Pynq-Z1
 PLATFORM :=
 CLK_ID := 0 
 
-.PHONY: all gps n2m2 n8m4
-all: help n8m4
+.PHONY: all gps n2m2 n8m4 zcu104 z1 ultra96
+all: help z1 ultra96 zcu104
 
 gps:
 	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw NAME=gps CLK_ID=$(CLK_ID)
@@ -22,6 +22,20 @@ n2m2:
 n8m4:
 	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw-sw NAME=n8m4 CLK_ID=$(CLK_ID)
 
+n72m8:
+	make -f example.mk BOARD=$(BOARD) PLATFORM=$(PLATFORM) DESIGN=hw-sw NAME=n72m8 CLK_ID=$(CLK_ID)
+
+
+zcu104: n8m4 gps n2m2 n72m8 
+	
+z1: n8m4 gps n2m2
+
+ultra96: n8m4 gps n2m2	
+
+
+info:
+	sds++ -sds-pf-info $(PLATFORM)
+	
 clean:
 	rm -rf ./$(BOARD) .Xil
 	
@@ -36,6 +50,9 @@ help::
 	$(ECHO) "	make all"
 	$(ECHO) "		Command to compile source and generate stub object files. A shared object is created"
 	$(ECHO)	"		during pip installation by linking these files with 'libsds_lib.so' on the PYNQ board"
+	$(ECHO) ""
+	$(ECHO) "	make info"
+	$(ECHO) "		Command to get platform information, incl. available clock id's"
 	$(ECHO) ""
 	$(ECHO) "	make clean"
 	$(ECHO) "		Command to remove generated files for the specified board"
