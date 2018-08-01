@@ -1,15 +1,13 @@
 import numpy as np
 
 '''
-params[Nsta+Nsta+Mobs+(2*Nsta*Nsta)+(Mobs*Nsta)+2]:
-		1 - x[Nsta]
-		2 - fx[Nsta]
-		3 - hx[Mobs]
-		4 - F[Nsta*Nsta]
-		5 - H[Mobs*Nsta]
-		6 - P[Nsta*Nsta]
-		7 - qval
-		8 - rval
+Script to make params.dat for hw-sw gps example
+----------------------------------------------
+
+params[(2*Nsta*Nsta)+(Mobs*Mobs)]:
+		1 - P[Nsta*Nsta]
+		2 - Q[Nsta*Nsta]
+		3 - R[Mobs*Mobs]
 '''
 
 
@@ -39,21 +37,23 @@ if __name__ == "__main__":
 
     x = np.array([0.25739993, 0.3, -0.90848143, -0.1, -0.37850311, 0.3, 0.02, 0])
 
+    R = np.eye(M)*rval
+    Q = np.eye(N)*qval
     F = initF()
-    H = np.zeros(shape=(M,N))
     P = initP(pval)
 
-    fx = np.zeros(N)
-    hx = np.zeros(M)
-
-    params = np.concatenate((x, fx, hx, F.flatten(), H.flatten(), P.flatten(),
-                             np.array([qval]), np.array([rval])), axis=0)
+    params = np.concatenate((P.flatten(), Q.flatten(), R.flatten()), axis=0)
 
     dump = ""
 
     for i, x in enumerate(params):
         val = toFixed(x)
         pstring = "params[%d] = (uint32_t) %d;\n"%(i, val)
+        dump += pstring
+
+    for i, x in enumerate(F.flatten()):
+        val = toFixed(x)
+        pstring = "F_i[%d] = (uint32_t) %d;\n"%(i, val)
         dump += pstring
 
     with open("params.dat", "w") as f:
