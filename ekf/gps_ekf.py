@@ -12,6 +12,25 @@ ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class GPS_EKF(EKF):
 
+    """Python class for the HW-Only GPS example.
+
+    Attributes:
+    ----------
+    n : int
+        number of states
+    m : int
+        number of observations
+    pval : float
+        diagonal scaling factor for state covariance
+    qval : float
+        diagonal scaling factor for process covariance
+    rval : float
+        diagonal scaling factor for observation covariance
+    x : np.array(np.float), shape=(n,)
+        The current mean state estimate
+    """
+
+
     def __init__(self, n, m, pval=0.5, qval=0.1, rval=20.0, load_overlay=True):
 
         OVERLAY_DIR = os.path.join(ROOT_DIR, "hw")
@@ -19,11 +38,8 @@ class GPS_EKF(EKF):
         lib = os.path.join(os.path.abspath(OVERLAY_DIR), "libekf_gps.so")
 
         EKF.__init__(self, n, m, pval, qval, rval, bitstream, lib, load_overlay)
-        self.x = np.array([0.25739993, 0.3,
-                           -0.90848143, -0.1,
-                           -0.37850311, 0.3,
-                           0.02, 0])
-        self.x_hw = self.x
+
+        self.default_state()
         self.toFixed = NumpyFloatToFixConverter(signed=True, n_bits=32,
                                                 n_frac=20)
         self.toFloat = NumpyFixToFloatConverter(20)
@@ -33,6 +49,19 @@ class GPS_EKF(EKF):
         self.qval = qval
         self.rval = rval
 
+    def default_state(self):
+        self.x = np.array([0.25739993, 0.3, -0.90848143, -0.1, -0.37850311,
+                           0.3, 0.02, 0])
+
+    def set_state(self, x=None):
+        '''
+        Method to set the initial state:
+            x - numpy.array(np.float)
+        '''
+        self.x = x
+        if x is None:
+            self.default_state()
+        return
 
     @property
     def ffi_interface(self):
@@ -42,10 +71,14 @@ class GPS_EKF(EKF):
 
     def configure(self, dtype=np.int32):
         '''
-        prepare hw params
+        Custom method to prepare hw accelerator:
             * fixed-point conversion
             * contiguous memory allocation
         '''
+
+        # reset the state
+        self.default_state()
+
         fx = np.zeros(self.n)
         hx = np.zeros(self.m)
         F = np.kron(np.eye(4), np.array([[1,1],[0,1]]))
@@ -53,7 +86,7 @@ class GPS_EKF(EKF):
         P = np.eye(self.n)*self.pval
 
         params = np.concatenate(
-            (self.x_hw, fx, hx, F.flatten(), H.flatten(), P.flatten(),
+            (self.x, fx, hx, F.flatten(), H.flatten(), P.flatten(),
              np.array([self.qval]), np.array([self.rval])), axis=0)
 
         params = self.toFixed(params)
@@ -131,7 +164,30 @@ class GPS_EKF(EKF):
 
 
 
-class GPS_EKF_GENERAL(EKF):
+class GPS_EKF_HWSW(EKF):
+
+    """Python class for the hybrid HW-SW GPS example.
+
+    Attributes:
+    ----------
+    n : int
+        number of states
+    m : int
+        number of observations
+    x : np.array(np.float), shape=(n,)
+        current mean state estimate
+    F : np.array(float), shape=(n,n)
+        state transition matrix. the GPS model assumes the state transition
+        equation is linear, therefore F is constant.
+    P : np.array(float), shape=(n,n)
+        state covariance matrix
+    Q : np.array(float), shape=(n,n)
+        process covariance matrix
+    R : np.array(float), shape=(m,m)
+        observation covariance matrix
+    pars : np.array(float), shape=(n*n + n*n + m*m, 1)
+        flattened array containing P,Q,R
+    """
 
     def __init__(self, n=8, m=4, pval=0.5, qval=0.1, rval=20,
                  load_overlay=True):
@@ -146,15 +202,14 @@ class GPS_EKF_GENERAL(EKF):
         self.m = m
 
         # sw params
-        self.x = np.array(
-            [0.2574, 0.3, -0.908482, -0.1, -0.378503, 0.3, 0.02, 0.0])
+        self.default_state()
         self.F = np.kron(np.eye(4), np.array([[1, 1], [0, 1]]))
-        self.H = np.zeros(shape=(m, n))
+        #self.H = np.zeros(shape=(m, n))
         self.P = np.eye(n) * pval
         self.Q = np.eye(n) * qval
         self.R = np.eye(m) * rval
-        self.fx = np.zeros(n)
-        self.hx = np.zeros(m)
+        #self.fx = np.zeros(n)
+        #self.hx = np.zeros(m)
 
         self.toFixed = NumpyFloatToFixConverter(signed=True, n_bits=32,
                                                 n_frac=20)
@@ -162,16 +217,33 @@ class GPS_EKF_GENERAL(EKF):
 
         # hw persisitent params
         self.pars = np.concatenate(
-            (self.x, self.P.flatten(), self.Q.flatten(), self.R.flatten()),
+            (self.P.flatten(), self.Q.flatten(), self.R.flatten()),
             axis=0) * (1 << 20)
 
         # hw params
         self.hw_init()
 
+    def default_state(self):
+        self.x = np.array([0.2574, 0.3, -0.908482, -0.1, -0.378503, 0.3,
+                           0.02, 0.0])
+        return
+
+
+    def set_state(self, x=None):
+        '''
+        Method to set the initial state:
+            x - numpy.array(np.float)
+        '''
+        self.x = x
+        if x is None:
+           self.default_state()
+        return
+
     def hw_init(self):
         self.params = self.copy_array(self.pars)
-        self.x_fl = np.array(
-            [0.2574, 0.3, -0.908482, -0.1, -0.378503, 0.3, 0.02, 0.0])
+        self.default_state()
+        #self.x = np.array(
+        #    [0.2574, 0.3, -0.908482, -0.1, -0.378503, 0.3, 0.02, 0.0])
         self.F_hw = self.copy_array(
             self.toFixed(self.F.flatten()))  # *(1<<20) )
         self.fx_hw = self.copy_array(np.zeros(self.n))
@@ -213,7 +285,7 @@ class GPS_EKF_GENERAL(EKF):
         np.copyto(self.obs, self.toFixed(rho).astype(np.int32))
 
         # compute fx, hx, F, H in python floating point, convert back to fixed, copy to contiguous memory
-        self.model(self.x_fl, pos)
+        self.model(self.x, pos)
 
         # output ptr
         offset = 0
@@ -224,7 +296,7 @@ class GPS_EKF_GENERAL(EKF):
                         self.params, out_ptr, int(0), self.n, self.m)
 
         # convert state into float for next iteration model()
-        self.x_fl = self.toFloat(self.outBuffer[0])  # *(1.0/(1<<20))
+        self.x = self.toFloat(self.outBuffer[0])  # *(1.0/(1<<20))
 
         # repeat for len(x)-1 iterations
         for i, line in enumerate(x[1:]):
@@ -237,7 +309,7 @@ class GPS_EKF_GENERAL(EKF):
             np.copyto(self.obs, self.toFixed(rho).astype(np.int32))
 
             # compute fx, hx, F, H in python floating point, convert back to fixed, copy to contiguous memory
-            self.model(self.x_fl, pos)
+            self.model(self.x, pos)
 
             # output ptr
             offset += 32
@@ -249,7 +321,7 @@ class GPS_EKF_GENERAL(EKF):
                             self.m)
 
             # convert state into float for next iteration model()
-            self.x_fl = self.toFloat(self.outBuffer[i + 1])  # *(1.0/(1<<20))
+            self.x = self.toFloat(self.outBuffer[i + 1])  # *(1.0/(1<<20))
 
         return self.outBuffer[:, [0, 2, 4]]  # output #
 

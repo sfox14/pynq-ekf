@@ -11,6 +11,29 @@ ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class Light_EKF(EKF):
 
+    """Python class for the hybrid HW-SW light sensor fusion example.
+
+        Attributes:
+        ----------
+        n : int
+            number of states
+        m : int
+            number of observations
+        x : np.array(np.float), shape=(n,)
+            current mean state estimate
+        F : np.array(float), shape=(n,n)
+            state transition matrix. the GPS model assumes the state transition
+            equation is linear, therefore F is constant.
+        P : np.array(float), shape=(n,n)
+            state covariance matrix
+        Q : np.array(float), shape=(n,n)
+            process covariance matrix
+        R : np.array(float), shape=(m,m)
+            observation covariance matrix
+        pars : np.array(float), shape=(n*n + n*n + m*m, 1)
+            flattened array containing P,Q,R
+        """
+
     def __init__(self, n=2, m=2, pval=0.01, qval=0.01, rval=2.5,
                  load_overlay=True):
 
@@ -20,8 +43,7 @@ class Light_EKF(EKF):
 
         EKF.__init__(self, n, m, pval, qval, rval, bitstream, lib,
                      load_overlay)
-        self.x = np.array([6.00, 0.1])
-        self.x_hw = self.x
+        self.default_state()
 
         self.n = n
         self.m = m
@@ -30,24 +52,35 @@ class Light_EKF(EKF):
         self.Q = np.eye(self.n) * qval
         self.R = np.eye(self.m) * np.array([0.1, 1.0])
 
-        self.fx = np.zeros(n)
-        self.hx = np.zeros(m)
-
         self.toFixed = NumpyFloatToFixConverter(signed=True, n_bits=32,
                                                 n_frac=FRAC_WIDTH)
         self.toFloat = NumpyFixToFloatConverter(FRAC_WIDTH)
 
         # hw persistent params
         self.pars = np.concatenate(
-            (self.x, self.P.flatten(), self.Q.flatten(), self.R.flatten()),
+            (self.P.flatten(), self.Q.flatten(), self.R.flatten()),
             axis=0) * (1 << 20)
 
         # hw params
         self.hw_init()
 
+    def default_state(self):
+        self.x = np.array([6.00, 0.1])
+        return
+
+    def set_state(self, x=None):
+        '''
+        Method to set the initial state:
+            x - numpy.array(np.float)
+        '''
+        self.x = x
+        if x is None:
+           self.default_state()
+        return
+
     def hw_init(self):
         self.params = self.copy_array(self.pars)
-        self.x_fl = np.array([6.00, 0.1])
+        self.default_state()
         self.obs = self.copy_array(np.zeros(self.m))
         self.outBuffer = self.copy_array(np.zeros((MAX_OUT, self.n)))
 
@@ -66,7 +99,7 @@ class Light_EKF(EKF):
     @property
     def ffi_interface(self):
         return """void _p0_top_ekf_1_noasync(int obs[2], int fx_i[2], int hx_i[2], 
-        int F_i[4], int H_i[4], int params[14], int output[2], int ctrl, int w1, int w2);"""
+        int F_i[4], int H_i[4], int params[12], int output[2], int ctrl, int w1, int w2);"""
 
     def run_sw(self, x):
         output = np.zeros((len(x), self.n))
@@ -85,7 +118,7 @@ class Light_EKF(EKF):
         np.copyto(self.obs, self.toFixed(line))
 
         # compute fx, hx in python floating point, convert back to fixed, copy to contiguous memory
-        self.model(self.x_fl)
+        self.model(self.x)
 
         # output ptr
         offset = 0
@@ -96,7 +129,7 @@ class Light_EKF(EKF):
                         self.params, out_ptr, 0, self.n, self.m)
 
         # Convert state into float for next iteration model()
-        self.x_fl = self.toFloat(self.outBuffer[0])
+        self.x = self.toFloat(self.outBuffer[0])
 
         # repeat for len(x)-1 iterations
         for i, line in enumerate(x[1:]):
@@ -107,7 +140,7 @@ class Light_EKF(EKF):
             np.copyto(self.obs, obs)
 
             # compute fx, hx in python floating point, convert back to fixed, copy to contiguous memory
-            self.model(self.x_fl)
+            self.model(self.x)
 
             # output ptr
             offset += 8
@@ -118,7 +151,7 @@ class Light_EKF(EKF):
                             self.H_hw, self.params, out_ptr, 2, self.n, self.m)
 
             # Convert state into float for next iteration model()
-            self.x_fl = self.toFloat(self.outBuffer[i + 1])
+            self.x = self.toFloat(self.outBuffer[i + 1])
 
         return self.outBuffer[:len(x), :]  # fixed point
 

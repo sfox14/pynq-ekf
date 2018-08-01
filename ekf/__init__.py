@@ -58,13 +58,14 @@ class EKF(object):
         self.Q = np.eye(n) * qval
         self.R = np.eye(m) * rval
 
-        # Identity matrix will be usefel later
+        # Identity matrix
         self.I = np.eye(n)
 
     def step(self, z, **kwargs):
         '''
         Runs one step of the EKF on observations z, where z is a tuple of
-        length m. Returns a NumPy array representing the updated state.
+        length m. Returns a NumPy array representing the updated state. This
+        is the SW only implementation.
         '''
 
         # Predict ----------------------------------------------------
@@ -136,6 +137,6 @@ __author__ = "Sean Fox"
 
 __all__ = ["EKF",
            "GPS_EKF",
-           "GPS_EKF_GENERAL",
+           "GPS_EKF_HWSW",
            "Light_EKF"]
-__version__= 0.2
+__version__= 0.1
