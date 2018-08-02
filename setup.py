@@ -17,7 +17,7 @@ class BoardSupportError(Exception):
 board = os.environ['BOARD']
 board_folder = 'boards/{}/'.format(board)
 if not os.path.isdir(board_folder):
-    raise BoardSupportError("Repository does not support the %s board" %board)
+    raise BoardSupportError("%s board is not supported" %board)
 #
 # Board specific package delivery setup
 #
@@ -27,11 +27,6 @@ def exclude_from_files(exclude, path):
             if os.path.isfile(os.path.join(path, file))
             and file != exclude]
 
-
-def exclude_from_dirs(exclude, path):
-    return [folder for folder in os.listdir(path)
-            if os.path.isdir(os.path.join(path, folder))
-            and folder != exclude]
 
 # find dirs containing .bit files
 def find_designs(path):
