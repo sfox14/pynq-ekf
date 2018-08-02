@@ -69,9 +69,7 @@ Open a terminal on your PYNQ board and run:
 sudo pip3.6 install --upgrade git+https://github.com/**yourusername**/pynq-ekf.git 
 ```
 
-Note: 
-
-If you chose to ignore Step 4 and Step 5 and instead copied the bitstream and object files directly to the board. You can then run:
+**Note:** If you chose to ignore Step 4 and Step 5 and instead copied the bitstream and object files directly to the board. You can then run:
 
 On ARM Cortex-A9 (eg. Z1, Z2):
 ```shell
