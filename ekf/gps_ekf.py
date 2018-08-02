@@ -261,7 +261,7 @@ class GPS_EKF_HWSW(EKF):
     @property
     def ffi_interface(self):
         return """void _p0_top_ekf_1_noasync(int obs[4], int fx_i[8], int hx_i[4], 
-        int F_i[64], int H_i[32], int params[152], int output[8], int ctrl, int w1, int w2);"""
+        int F_i[64], int H_i[32], int params[144], int output[8], int ctrl, int w1, int w2);"""
 
     def run_sw(self, x):
         output = np.zeros((len(x), 3))
@@ -301,7 +301,7 @@ class GPS_EKF_HWSW(EKF):
         # repeat for len(x)-1 iterations
         for i, line in enumerate(x[1:]):
 
-            os.system("sh -c 'sync; echo 3 > /proc/sys/vm/drop_caches' ")
+            #os.system("sh -c 'sync; echo 3 > /proc/sys/vm/drop_caches' ")
 
             # Fetch next observation+measurement, convert observation to fixed, copy into contiguous memory buffer
             pos = np.array(line[:12]).reshape(4, 3)

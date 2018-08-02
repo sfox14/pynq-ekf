@@ -133,7 +133,7 @@ class Light_EKF(EKF):
 
         # repeat for len(x)-1 iterations
         for i, line in enumerate(x[1:]):
-            os.system("sh -c 'sync; echo 3 > /proc/sys/vm/drop_caches' ")
+            #os.system("sh -c 'sync; echo 3 > /proc/sys/vm/drop_caches' ")
 
             # Fetch next observation, convert observation to fixed, copy into contiguous memory buffer
             obs = (self.toFixed(line))
