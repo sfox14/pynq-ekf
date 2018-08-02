@@ -173,3 +173,4 @@ venv.bak/
 *.dat
 !/boards/*/*/*.so
 !/build/x86/dist/*/*/*/*.o
+!/build/x86/src/*/*/*.dat
