@@ -30,20 +30,24 @@ Vivado:
 source <Vivado Installation Dir>/installs/lin64/Vivado/2017.4/settings64.sh
 ```
 
-#### Step 3: Build Target
+#### Step 3: Get Platform-Info
+
+To find platform informtion, such as the available clock ID's, run the following:
+
+```shell
+make info PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare>
+```
+
+**Note:** you must have the path to a compatible SDSoC platform. To generate a platform follow these steps ...
+
+#### Step 4: Build Target
 
 From ./build directory run:
 
 ```shell
-make PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare> BOARD=<eg. Pynq-Z1, Ultra96> 
+make PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare> BOARD=<eg. Pynq-Z1, Ultra96> CLK_ID=<0,1,2,..>
 ```
 This will launch the sds++ compiler, and will generate both the bitstream and compiled stub object files. This step requires the path to a working SDSoC platform. You can visit this [repository](https://github.com/yunqu/PYNQ-derivative-overlays) if you would like to build your own platform using a DSA derived from an existing PYNQ project. 
-
-**Optional:** You can also use HLS directives to build different (N,M) configurations for the HW-SW architectecture:
-
-```shell
-make PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare> BOARD=<eg. Pynq-Z1, Ultra96> AA=** BB=**
-```
 
 --------------------------------------------------------------------------------------------------------------------------------
 
@@ -77,10 +81,21 @@ If you chose to ignore Step 4 and Step 5 and instead copied the bitstream and ob
 
 On ARM Cortex-A9 (eg. Z1, Z2):
 ```shell
-arm-linux-gnueabihf-g++ -shared $(OBJS) -l usr/lib/libsds_lib.so -o libekf.so
+arm-linux-gnueabihf-g++ -fPIC -shared $(OBJS) -l pthread usr/lib/libsds_lib.so -o libekf.so
 ```
 
 On ARM Cortex-A53 (eg. Ultra96, ZCU104):
 ```shell
-aarch64-linux-gnu-g++ -shared $(OBJS) -l usr/lib/libsds_lib.so -o libekf.so
+aarch64-linux-gnu-g++ -fPIC -shared $(OBJS) -l pthread usr/lib/libsds_lib.so -o libekf.so
 ```
+and,
+```shell
+$(OBJS) := cf_stub.o portinfo.o ekf.o top_ekf.o
+```
+
+## 3. Building an SDx Platform
+------------------------------------
+
+## 4. EKF Configurations
+-------------------------------------------
+ 
