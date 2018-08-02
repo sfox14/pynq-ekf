@@ -55,7 +55,7 @@ print(type(f), f.shape, f.pointer, f[:3])
 # In[ ]:
 
 
-interface._p0_top_ekf_1_noasync(a.pointer, b.pointer, c.pointer, d.pointer, e.pointer, f.pointer, h.pointer, ctrl, w1, w2)
+interface._p0_top_ekf_1_noasync(a.pointer, b.pointer, c.pointer, d.pointer, e.pointer, f.pointer, g.pointer, ctrl, w1, w2)
 
 ctrl = 1
 w1=8 
@@ -77,5 +77,5 @@ for i in range(50):
     g = xlnk.cma_array(shape=(8,), dtype=np.int32)
     np.copyto(g, np.random.randint(321231, size=8) )
     
-    interface._p0_top_ekf_1_noasync(a.pointer, b.pointer, c.pointer, d.pointer, e.pointer, f.pointer, h.pointer, ctrl, w1, w2)
+    interface._p0_top_ekf_1_noasync(a.pointer, b.pointer, c.pointer, d.pointer, e.pointer, f.pointer, g.pointer, ctrl, w1, w2)
 
