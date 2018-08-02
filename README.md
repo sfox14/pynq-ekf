@@ -11,7 +11,7 @@ This repository provides an example of PYNQ supporting multiple boards from a si
 Open a terminal on your PYNQ board and run:
 
 ```
-sudo pip3.6 install --upgrade git+https://github.com/sfox14/pynq-ekf.git 
+sudo pip3 install --upgrade git+https://github.com/sfox14/pynq-ekf.git 
 ```
 
 This will install the "pynq-ekf" package to your board, and will create the "ekf" directory in the PYNQ_JUPYTER_NOTEBOOKS path. Here you will find notebooks which test our EKF design.
@@ -66,7 +66,7 @@ The PL implements the required matrix operations in a dataflow architecture. The
 
 #### Hardware (HW):
 
-Given the performance drawbacks of the HW-SW co-design, it may be better to implement the entire algorithm on the FPGA. The [gps_example.ipynb](./notebooks/gps_example.ipynb) notebook gives an example for this, however this option can not support other EKF applications or configurations.
+Given the performance drawbacks of the HW-SW co-design, it may be better to implement the entire algorithm on the FPGA. The [gps_example.ipynb](./notebooks/gps_notebook.ipynb) notebook gives an example for this, however this option can not support other EKF applications or configurations.
 
 
 ## 4. Performance:
@@ -96,6 +96,9 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1> BOARD=<eg. Pynq-Z1, Ultra96> CLK_
 ## 6. Repository Structure:
 -------------------------------------------------------------------------------------------------------------------------
 * `boards: ` List of boards currently supported, with their associated bitstreams and libraries.
+   * `Pynq-Z1/Ultra96/ZCU104: ` Supported boards
+      * `hw: ` Contains .bit .tcl and .so files for hardware-only designs
+      * `hw-sw: ` Contains .bit .tcl and .so files for hybrid hardware-software architecture
 * `build: ` The source and scripts for the multi-board build flow
     * `arm: ` Makefile for linking SDSoC output object files on the board. This script is called from `setup.py` during pip install.
     * `x86: ` Host machine makefile
@@ -110,7 +113,6 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1> BOARD=<eg. Pynq-Z1, Ultra96> CLK_
 * `utils: ` Extra repository stuff
     * `imgs: ` Pictures, illustrations and tables
     * `python: ` Code for generating `gps_data.csv` and `params.dat`
-    * `cache-error: ` A minimal notebook for testing/debugging the known memory bug
     * `tiny-ekf: ` An adapted version of TinyEKF for our generated GPS dataset. Used to benchmark performance.
 * `notebooks: `: Two jupyter notebooks that call the EKF hw-accelerators.
 
@@ -128,4 +130,9 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1> BOARD=<eg. Pynq-Z1, Ultra96> CLK_
 
 * [TinyEKF](https://github.com/simondlevy/TinyEKF/) - An example C/C++ and Python implementation of EKF for Arduino. This repository also contains working C code for the gps example. 
 
+## 9. Licenses
+
+**PYNQ** License : [BSD 3-Clause License](https://github.com/Xilinx/PYNQ/blob/master/LICENSE)
+
+**TinyEKF** License : [MIT License](https://github.com/simondlevy/TinyEKF/blob/master/LICENSE.md)
 
