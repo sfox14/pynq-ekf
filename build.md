@@ -13,7 +13,7 @@ Steps for rebuilding the hardware on your host machine are given below. This flo
 On your host computer, clone this repository and change to the /build directory.
 
 ```shell
-git clone https://github.com/**yourusername**/pynq-ekf.git
+git clone https://github.com/<fork_name>/pynq-ekf.git
 cd pynq-ekf/build
 ```
 #### Step 2: Source Vivado and SDx 2017.4
