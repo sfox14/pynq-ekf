@@ -6,8 +6,6 @@ This repository provides an example of PYNQ supporting multiple boards from a si
 
 ## 1.  Quick Start:
 
--------------------------------------------------------------------------------------------------------------------------
-
 Open a terminal on your PYNQ board and run:
 
 ```
@@ -22,8 +20,6 @@ This will install the "pynq-ekf" package to your board, and will create the "ekf
 
 ## 2. Background:
 
--------------------------------------------------------------------------------------------------------------------------
-
 The Kalman Filter (KF) and Extended Kalman Filter (EKF) are recursive state estimators for linear and non-linear systems respectively, with additive white noise. KFs are optimal estimators whereas EKFs have to make an approximation. This is because linear functions of Gaussian variables are themselves Gaussian, and hence the posterior probability distribution function (PDF) can be computed exactly, applying matrix operators without doing any sampling. This also has computational benefits since the majority of modern processors are good at handling matrices. To leverage the benefits of linear models, for non-linear signals, EKFs find an approximation by linearising around an estimate of the non-linear function's mean. Linearisation is the same as computing the gradient, which means that matrices of partial derivatives (i.e. Jacobian matrices) need to be computed for each iteration or state estimate. Kalman Filtering is a prediction technique for modelling uncertainty, and therefore every variable and function has an associated mean and covariance which is assumed Gaussian. KFs and EKFs work by combining two noisy models, a process or state transition function (f) and observation function (h), and trade off the uncertainties of each to form a better estimate of the underlying state. This is captured in the computational graph for the EKF below:
 
 <p align="center">
@@ -34,8 +30,6 @@ For more information on Kalman Filters, [this course](http://ais.informatik.uni-
 
 
 ## 3. Design and Implementation:
-
--------------------------------------------------------------------------------------------------------------------------
 
 There are two accelerator architectures.
 
@@ -70,7 +64,6 @@ Given the performance drawbacks of the HW-SW co-design, it may be better to impl
 
 
 ## 4. Performance:
--------------------------------------------------------------------------------------------------------------------------
 
 Table 1 shows performance of the EKF accelerator on the GPS example. It assumes a model with **N=8** states and **M=4** observations, and is the same as the C/C++ model implemented [here](https://github.com/simondlevy/TinyEKF/). The dataset is generated in [make_dataset.py](./utils/python/make_dataset.py), and characterises a typical GPS system. The execution time of the accelerator was measured from callsites written in both Python and C, for SW-only, HW-only and hybrid HW-SW designs, and shows up to **45x speed-up** when the entire algorithm is deployed on the FPGA.                                                                                                                                          
 <p align="center">
@@ -84,7 +77,6 @@ The design can be scaled to support bigger problems and larger devices. Table 2,
 </p>
 
 ## 5. Build Flow:
--------------------------------------------------------------------------------------------------------------------------
 
 Follow the instructions [here](./build.md) to rebuild the EKF. This repository contains prebuilt bitstreams and libraries for SDSoC projects built against Pynq-Z1, Ultra96 and ZCU104 boards. You must have a valid Xilinx license for Vivado and SDSoC 2017.4 to run the makefile.
 
@@ -94,7 +86,7 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1> BOARD=<eg. Pynq-Z1, Ultra96> CLK_
 ```
 
 ## 6. Repository Structure:
--------------------------------------------------------------------------------------------------------------------------
+
 * `boards: ` List of boards currently supported, with their associated bitstreams and libraries.
    * `Pynq-Z1/Ultra96/ZCU104: ` Supported boards
       * `hw: ` Contains .bit .tcl and .so files for hardware-only designs
@@ -118,13 +110,11 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1> BOARD=<eg. Pynq-Z1, Ultra96> CLK_
 
 
 ## 7. Known Issues:
--------------------------------------------------------------------------------------------------------------------------
 
 * There is a memory issue with the HW-SW design's Python wrapper. To get correct outputs, the OS cache needs to be flushed each iteration. The cause of this problem is still unknown. 
 
 
 ## 8. References:
--------------------------------------------------------------------------------------------------------------------------
 
 * [Kalman Filter Notes and Slides](http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/) - Online lectures and notes given on EKF by Cyril Stachniss (Albert-Ludwigs-Universität Freiburg).
 
