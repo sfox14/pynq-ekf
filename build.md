@@ -3,8 +3,6 @@
 
 This is a short guide for rebuilding the EKF project. The targeted SDSoC/HLS source files can be found in [/build/src](./src).
 
----------------------------------------------------------------------------------------------------------------------
-
 ## 1. Hardware (x86):
 
 Steps for rebuilding the hardware on your host machine are given below. This flow generates a bitstream and cross-compiled stub object files. The stubs are outputs of SDSoC used to call IP on the FPGA, which must be linked with /usr/lib/libsds_lib.so on the PYNQ board. This will generate a c-callable software library, and is discussed more in the Software section below.
@@ -15,7 +13,7 @@ Steps for rebuilding the hardware on your host machine are given below. This flo
 On your host computer, clone this repository and change to the /build directory.
 
 ```shell
-git clone https://github.com/**yourusername**/pynq-ekf.git
+git clone https://github.com/<fork_name>/pynq-ekf.git
 cd pynq-ekf/build
 ```
 #### Step 2: Source Vivado and SDx 2017.4
@@ -49,8 +47,6 @@ make PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare> BOARD=<eg. Pynq-Z1, Ultra96>
 ```
 This will launch the sds++ compiler, and will generate both the bitstream and compiled stub object files. This step requires the path to a working SDSoC platform. You can visit this [repository](https://github.com/yunqu/PYNQ-derivative-overlays) if you would like to build your own platform using a DSA derived from an existing PYNQ project. 
 
---------------------------------------------------------------------------------------------------------------------------------
-
 ## 2. Software (PYNQ board)
 
 The software library can be built on the PYNQ board using setup.py, or alternatively by running the makefile separately.
@@ -73,11 +69,7 @@ Open a terminal on your PYNQ board and run:
 sudo pip3.6 install --upgrade git+https://github.com/**yourusername**/pynq-ekf.git 
 ```
 
---------------------------------------------------------------------------------------------------------------------------------
-
-## Note: 
-
-If you chose to ignore Step 4 and Step 5 and instead copied the bitstream and object files directly to the board. You can then run:
+**Note:** If you chose to ignore Step 4 and Step 5 and instead copied the bitstream and object files directly to the board. You can then run:
 
 On ARM Cortex-A9 (eg. Z1, Z2):
 ```shell
@@ -94,8 +86,6 @@ $(OBJS) := cf_stub.o portinfo.o ekf.o top_ekf.o
 ```
 
 ## 3. Building an SDx Platform
-------------------------------------
 
 ## 4. EKF Configurations
--------------------------------------------
  
