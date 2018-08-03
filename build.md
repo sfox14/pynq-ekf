@@ -45,7 +45,7 @@ From ./build directory run:
 ```shell
 make PLATFORM=<eg. /home/usr/platform/Pynq-Z1/bare> BOARD=<eg. Pynq-Z1, Ultra96> CLK_ID=<0,1,2,..>
 ```
-This will launch the sds++ compiler, and will generate both the bitstream and compiled stub object files. This step requires the path to a working SDSoC platform. You can visit this [repository](https://github.com/yunqu/PYNQ-derivative-overlays) if you would like to build your own platform using a DSA derived from an existing PYNQ project. 
+This will launch the sds++ compiler, and will generate both the bitstream and compiled stub object files. 
 
 ## 2. Software (PYNQ board)
 

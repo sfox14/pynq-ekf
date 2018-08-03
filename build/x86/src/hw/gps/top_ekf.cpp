@@ -113,7 +113,7 @@ void model(data_t x[Nsta], data_t fx[Nsta], data_t F[Nsta][Nsta],
     int i, j;
     data_t imm;
 
-	#pragma HLS pipeline
+	//#pragma HLS pipeline
 	
 	/* compute f(x) */
     for (j=0; j<8; j+=2) {

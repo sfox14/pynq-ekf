@@ -11,6 +11,7 @@ PLATFORM :=
 DESIGN := hw-sw
 NAME := gps
 CLK_ID := 0
+P_ENABLE ?= 0
 
 # Target OS:
 #     linux (Default), standalone
@@ -71,6 +72,8 @@ CFLAGS += $(ADDL_FLAGS)
 LFLAGS = "$@" "$<" 
 #+---------------------------------------------------------------------
 
+CONFIG_FLAGS := -DP_ENABLE=${P_ENABLE}
+
 SDSFLAGS := -sds-pf $(PLATFORM) \
 		-target-os $(TARGET_OS) 
 ifeq ($(VERBOSE), 1)
@@ -115,7 +118,7 @@ $(pwd)/$(BUILD_DIR)/%.o: $(pwd)/$(SRC_DIR)/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: SDS++ Compiler'
 	mkdir -p $(BUILD_DIR)
-	cd $(BUILD_DIR) ; $(CC) $(CFLAGS) -o $(LFLAGS) $(HW_FLAGS)
+	cd $(BUILD_DIR) ; $(CC) $(CFLAGS) $(CONFIG_FLAGS) -o $(LFLAGS) $(HW_FLAGS)
 	@echo 'Finished building: $<'
 	@echo ' '
 

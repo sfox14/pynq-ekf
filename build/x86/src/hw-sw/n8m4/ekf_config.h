@@ -20,7 +20,7 @@ typedef ap_uint<bit_width> port_t;
 //#define Z1_ENABLE 0
 
 /* P_ENABLE=1 for larger devices or small problems, eg. zcu104, n8m4 */
-#define P_ENABLE 1
+#define P_ENABLE 0
 
 /* 	Inner-loop block factors:
 	------------------------

@@ -237,7 +237,7 @@ static void step2_1(data_t H[Mobs][Nsta], data_t Pp[Nsta][Nsta],
 
 	#pragma HLS inline off
 	
-	int bsize = BSIZE_2;
+	int bsize = BSIZE_3;
 
 	int i, j, l, k;
 	
@@ -269,7 +269,7 @@ static void step2_2(data_t Pp[Nsta][Nsta], data_t Ht[Nsta][Mobs], data_t tmp1[Ns
 {
 	#pragma HLS inline off
 	
-	int bsize = BSIZE_2;
+	int bsize = BSIZE_3;
 	
 	int i, j, l, k;
 	
@@ -300,7 +300,7 @@ static void step2_3(data_t tmp6[Mobs][Nsta], data_t Ht[Nsta][Mobs],
 {
 	#pragma HLS inline off
 	
-	int bsize = BSIZE_2;
+	int bsize = BSIZE_3;
 	
 	int i, j, l, k;
 	

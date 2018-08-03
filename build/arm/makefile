@@ -2,7 +2,7 @@
 # Makefile for building shared library (.so) on the PYNQ board
 #+-------------------------------------------------------------------------------
 
-BOARD := Pynq-Z1
+BOARD :=
 NAME :=
 CC := arm-linux-gnueabihf-g++
 
