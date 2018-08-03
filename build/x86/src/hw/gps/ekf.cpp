@@ -12,7 +12,7 @@ static void LU(data_t A[Mobs][Mobs])
 	data_t x;
 	
 	for(k=0;k<Mobs-1;k++) {		
-		#pragma HLS pipeline		
+		//#pragma HLS pipeline		
 		for(j=k+1;j<Mobs;j++) {
 			x = (data_t)(A[j][k])/A[k][k];
 			for(i=k;i<Mobs;i++) {  
@@ -38,7 +38,7 @@ static void LUInv(data_t A[Mobs][Mobs], data_t Ainv[Mobs][Mobs])
 	
 	// Find the Inverse
  	for(m=0; m<Mobs; m++) { 
-		#pragma HLS pipeline
+		//#pragma HLS pipeline
         // only d[m] = 1
 		for(i=0; i<Mobs; i++) {
 			d[i] = 0;

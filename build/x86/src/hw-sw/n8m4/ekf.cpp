@@ -243,9 +243,9 @@ static void step2_1(data_t H[Mobs][Nsta], data_t Pp[Nsta][Nsta],
 	
 	for (i=0; i<Mobs; i++) {
 		for (j=0; j<Nsta; j++) {
-			#if (PARTIAL_N_2==0)
-			#pragma HLS pipeline
-			#endif
+			//#if (PARTIAL_N_2==0)
+			//#pragma HLS pipeline
+			//#endif
 			data_t result = 0;
 			for (l=0; l<(Nsta/bsize); l++) {
 				#pragma HLS pipeline
@@ -275,9 +275,9 @@ static void step2_2(data_t Pp[Nsta][Nsta], data_t Ht[Nsta][Mobs], data_t tmp1[Ns
 	
 	for (i=0; i<Nsta; i++) {
 		for (j=0; j<Mobs; j++) {
-			#if (PARTIAL_N_2==0)
-			#pragma HLS pipeline
-			#endif
+			//#if (PARTIAL_N_2==0)
+			//#pragma HLS pipeline
+			//#endif
 			data_t result = 0;
 			for (l=0; l<(Nsta/bsize); l++) {
 				#pragma HLS pipeline
@@ -306,9 +306,9 @@ static void step2_3(data_t tmp6[Mobs][Nsta], data_t Ht[Nsta][Mobs],
 	
 	for (i=0; i<Mobs; i++) {
 		for (j=0; j<Mobs; j++) {
-			#if (PARTIAL_N_2==0)
-			#pragma HLS pipeline
-			#endif
+			//#if (PARTIAL_N_2==0)
+			//#pragma HLS pipeline
+			//#endif
 			data_t result = 0;
 			for (l=0; l<(Nsta/bsize); l++) {
 				#pragma HLS pipeline
