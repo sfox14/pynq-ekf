@@ -5,22 +5,23 @@ import os
 import subprocess
 import sys
 import shutil
-import ekf
 
 
-class BoardSupportError(Exception):
-    def __init__(self, message):
-        self.message = message
-
-
-# Check that repository supports the board
+# global variables
 board = os.environ['BOARD']
 board_folder = 'boards/{}/'.format(board)
-if not os.path.isdir(board_folder):
-    raise BoardSupportError("%s board is not supported" %board)
-#
-# Board specific package delivery setup
-#
+notebooks_dir = os.environ['PYNQ_JUPYTER_NOTEBOOKS']
+ekf_data_files = []
+
+
+# check whether board is supported
+def check_env():
+    if not os.path.isdir(board_folder):
+        raise ValueError("Board {} is not supported.".format(board))
+    if not os.path.isdir(notebooks_dir):
+        raise ValueError("Directory {} does not exist.".format(notebooks_dir))
+
+
 # excludes file from path and returns other files
 def exclude_from_files(exclude, path):
     return [file for file in os.listdir(path)
@@ -34,87 +35,58 @@ def find_designs(path):
             if os.path.isdir(os.path.join(path, f))
             and len(glob.glob(os.path.join(path, f, "*.bit"))) > 0]
 
+
 # collect and package the board's overlay designs
 def collect_ekf_designs():
-    design_files = []
     design_dirs = find_designs(board_folder)
-    print("dirs: ", design_dirs)
     for ds in design_dirs:
-        print("ds: ", ds)
-        print(os.getcwd())
-        print(os.listdir(os.getcwd()))
-        copy_tree(os.path.join(board_folder, ds), os.path.join("ekf", ds))
-        #print(os.listdir(os.path.join(os.getcwd(), "ekf/full")))
-        new_dir = os.path.join("ekf", ds) # location for .bit .tcl .so files
-        f1 = open(os.path.join(new_dir, "__init__.py"), "w")
-        f1.close()
-        print("nd: ", new_dir)
-        files = exclude_from_files("makefile", new_dir) # example to exclude
-        print("f: ", files)
-        design_files.extend([os.path.join(new_dir, f) for f in files])
-    print("dfs: ", design_files)
-    #print(adaf)
-    return design_files
+        new_dir = os.path.join("ekf", ds)
+        copy_tree(os.path.join(board_folder, ds), new_dir)
+        files = exclude_from_files("makefile", new_dir)
+        ekf_data_files.extend([os.path.join("..", new_dir, f) for f in files])
 
-# build shared object using makefile
-def build_shared_object(board):
-    
-    arch = "arm-linux-gnueabihf-g++"
-    if board in ["Ultra96", "ZCU104"]:
-        arch = "aarch64-linux-gnu-g++"
 
-    build_folder = "build/x86/dist/{}/".format(board)
-
-    try:
-        locs = [x[0] for x in os.walk(build_folder) if len(x[0].split(
-            "/"))==6]
-    except Exception:
-        raise BoardSupportError("%s does not exist" %build_folder)
-    names = [x.split("/")[-1] for x in locs]
-    if len(names) == 0:
-        return
-    print("bf: ", board_folder)
-    print("locs: ", locs)
-    print("names: ", names) 
-    # build all shared objects
-    for i, loc in enumerate(locs):
-        bf = "/".join(loc.split("/")[-3:-1])
-        print(bf, names[i])
-        cmd = ["make", "install", "BOARD=%s"%(bf), "NAME=%s"%(names[i]),
-               "CC=%s"%(arch), "-C", "./build/arm"]
+# build shared objects using makefile
+def build_shared_object():
+    design_dirs = find_designs(board_folder)
+    for design in design_dirs:
+        cmd = ["make", "BOARD={}".format(board), "NAME={}".format(design),
+               "-C", "./build/arm"]
         status = subprocess.check_call(cmd)
         if status is not 0:
             print("Error while running make... exiting")
             sys.exit(1)
 
 
-#1. Build the shared object
-build_shared_object(board)
+# Copy notebooks in boards/BOARD/notebooks
+def copy_notebooks():
+    if os.path.isdir(board_folder):
+        dst_folder = os.path.join(notebooks_dir, 'ekf')
+        if os.path.exists(dst_folder):
+            shutil.rmtree(dst_folder)
+        copy_tree(os.path.join(board_folder, 'notebooks', 'ekf'), dst_folder)
 
-#2. Copy ekf design files to ekf package
-ekf_data_files = []
-ekf_data_files.extend(collect_ekf_designs())
 
-#3. Copy notebooks
-notebook_dir = os.environ['PYNQ_JUPYTER_NOTEBOOKS']
-notebook_folder = os.path.join(notebook_dir, "ekf")
-source_folder = "notebooks/"
-if os.path.exists(notebook_folder):
-    shutil.rmtree(notebook_folder)
-shutil.copytree(source_folder, notebook_folder)
+check_env()
+build_shared_object()
+collect_ekf_designs()
+copy_notebooks()
 
 
 setup(
     name="pynq-ekf",
-    version=ekf.__version__,
+    version='1.0',
+    install_requires=[
+          'rig',
+          'pynq>=2.3'
+    ],
     url='https://github.com/sfox14/pynq-ekf',
     license='BSD 3-Clause License',
     author="Sean Fox",
     author_email="sean.fox@sydney.edu.au",
-    packages=find_packages(), #['ekf'],
-    package_data={'' : ['*.bit','*.tcl','*.so']},
-    #data_files=ekf_data_files,
-    include_package_data=True,
-    description="Extended Kalman Filter (EKF) supporting multiple PYNQ "
-                "enabled boards"
+    packages=find_packages(),
+    package_data={
+        '': ekf_data_files,
+    },
+    description="Extended Kalman Filter (EKF) supporting PYNQ-enabled boards"
 )
