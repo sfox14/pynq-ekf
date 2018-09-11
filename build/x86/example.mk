@@ -6,9 +6,8 @@
 #	2. source Vivado 2017.4
 #+-------------------------------------------------------------------------------
 
-BOARD := 
-PLATFORM := 
-DESIGN := hw-sw
+BOARD :=
+PLATFORM :=
 NAME := gps
 CLK_ID := 0
 P_ENABLE ?= 0
@@ -18,7 +17,7 @@ P_ENABLE ?= 0
 TARGET_OS := linux
 
 # Build Directory
-BUILD_DIR := $(BOARD)/$(DESIGN)/$(NAME)
+BUILD_DIR := $(BOARD)/$(NAME)
 
 # Current Directory
 pwd := $(CURDIR)
@@ -37,15 +36,15 @@ EXECUTABLE := ekf_$(NAME).elf
 LIBRARY := libekf_$(NAME).so
 
 # Vivado outputs
-VIV_BIT := $(BUILD_DIR)/_sds/p0/vpl/system.bit
-VIV_TCL := $(BUILD_DIR)/_sds/p0/_vpl/ipi/sources_1/bd/system/hw_handoff/system_bd.tcl
+VIV_BIT := $(BUILD_DIR)/$(LIBRARY).bit
+VIV_TCL := $(BUILD_DIR)/_sds/p0/_vpl/ipi/sources_1/bd/*/hw_handoff/*_bd.tcl
 
 #+--------------------------------------------------------------------------
 # Makefile Data
 #+--------------------------------------------------------------------------
 
 # Source Files
-SRC_DIR := src/$(DESIGN)/$(NAME)
+SRC_DIR := src/$(NAME)
 OBJECTS += \
 $(pwd)/$(BUILD_DIR)/main.o \
 $(pwd)/$(BUILD_DIR)/top_ekf.o \
@@ -104,16 +103,15 @@ $(BUILD_DIR)/$(LIBRARY): $(OBJECTS)
 	cd $(BUILD_DIR) ; $(CPP) -fPIC -Wall -shared -o $(LIBRARY) $(OBJECTS)
 	@echo 'SDx Completed Building Target: $@'
 	@echo 'Copy compiled stub files'
-	mkdir -p dist/$(BOARD)/$(DESIGN)/$(NAME)
-	cp $(DISTS) dist/$(BOARD)/$(DESIGN)/$(NAME)
+	mkdir -p dist/$(BOARD)/$(NAME)
+	cp $(DISTS) dist/$(BOARD)/$(NAME)
 	@echo 'Copy bitstream'
-	mkdir -p ../../boards/$(BOARD)/$(DESIGN)
-	cp $(VIV_BIT) ../../boards/$(BOARD)/$(DESIGN)/ekf_$(NAME).bit
+	mkdir -p ../../boards/$(BOARD)/$(NAME)
+	cp $(VIV_BIT) ../../boards/$(BOARD)/$(NAME)/ekf_$(NAME).bit
 	@echo 'Copy tcl file'
-	cp $(VIV_TCL) ../../boards/$(BOARD)/$(DESIGN)/ekf_$(NAME).tcl
-	@echo ' '
-	
-	
+	cp $(VIV_TCL) ../../boards/$(BOARD)/$(NAME)/ekf_$(NAME).tcl
+	@echo
+
 $(pwd)/$(BUILD_DIR)/%.o: $(pwd)/$(SRC_DIR)/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: SDS++ Compiler'
@@ -122,6 +120,5 @@ $(pwd)/$(BUILD_DIR)/%.o: $(pwd)/$(SRC_DIR)/%.cpp
 	@echo 'Finished building: $<'
 	@echo ' '
 
-	
 clean:
 	$(RM) $(OBJECTS)

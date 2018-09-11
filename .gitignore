@@ -6,7 +6,6 @@
 # Compiled Object files
 *.slo
 *.lo
-*.o
 *.obj
 *.ko
 *.elf
@@ -16,10 +15,8 @@
 *.pch
 
 # Compiled Dynamic libraries
-*.so
 *.dylib
 *.dll
-*.so.*
 
 # Fortran module files
 *.mod
@@ -170,7 +167,3 @@ venv.bak/
 #     Other 
 #--------------------
 # SDSoC
-*.dat
-!/boards/*/*/*.so
-!/build/x86/dist/*/*/*/*.o
-!/build/x86/src/*/*/*.dat
