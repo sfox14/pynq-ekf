@@ -106,12 +106,6 @@ Follow the [instructions](build/README.md) to rebuild the EKF. This repository c
     * `python`: Code for generating `gps_data.csv` and `params.dat`
     * `tiny-ekf`: An adapted version of TinyEKF for our generated GPS dataset. Used to benchmark performance.
 
-
-## 7. Known Issues:
-
-* There is a memory issue with the HW-SW design's Python wrapper. To get correct outputs, the OS cache needs to be flushed each iteration. The cause of this problem is still unknown. 
-
-
 ## 8. References:
 
 * [Kalman Filter Notes and Slides](http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/) - Online lectures and notes given on EKF by Cyril Stachniss (Albert-Ludwigs-Universität Freiburg).
