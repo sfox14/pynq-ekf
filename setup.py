@@ -78,7 +78,7 @@ setup(
     version='1.0',
     install_requires=[
           'rig',
-          'pynq>=2.3'
+          'pynq>=2.1'
     ],
     url='https://github.com/sfox14/pynq-ekf',
     license='BSD 3-Clause License',
