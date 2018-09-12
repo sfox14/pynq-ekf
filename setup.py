@@ -46,18 +46,6 @@ def collect_ekf_designs():
         ekf_data_files.extend([os.path.join("..", new_dir, f) for f in files])
 
 
-# build shared objects using makefile
-def build_shared_object():
-    design_dirs = find_designs(board_folder)
-    for design in design_dirs:
-        cmd = ["make", "BOARD={}".format(board), "NAME={}".format(design),
-               "-C", "./build/arm"]
-        status = subprocess.check_call(cmd)
-        if status is not 0:
-            print("Error while running make... exiting")
-            sys.exit(1)
-
-
 # Copy notebooks in boards/BOARD/notebooks
 def copy_notebooks():
     if os.path.isdir(board_folder):
@@ -68,7 +56,6 @@ def copy_notebooks():
 
 
 check_env()
-build_shared_object()
 collect_ekf_designs()
 copy_notebooks()
 
@@ -78,7 +65,7 @@ setup(
     version='1.0',
     install_requires=[
           'rig',
-          'pynq>=2.1'
+          'pynq>=2.3'
     ],
     url='https://github.com/sfox14/pynq-ekf',
     license='BSD 3-Clause License',
