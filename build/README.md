@@ -14,7 +14,7 @@ On your host computer, clone this repository and change to the `build` directory
 
 ```shell
 git clone https://github.com/<fork_name>/pynq-ekf.git <local_git>
-cd <local_git>/build
+cd <local_git>/build/x86
 ```
 
 #### Step 2: Source Vivado and SDx
