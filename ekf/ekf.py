@@ -20,7 +20,7 @@ class EKF(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, n, m, pval=0.5, qval=0.1, rval=20.0,
-                 bitstream=None, lib=None):
+                 bitstream=None, library=None, cacheable=0):
         """Initialize the EKF object.
 
         Parameters
@@ -37,18 +37,25 @@ class EKF(object):
             measurement noise covariance
         bitstream : str
             string identifier of the bitstream
-        lib : str
+        library : str
             string identifier of the C library
+        cacheable : int
+            Whether the buffers should be cacheable - defaults to 0
 
         """
         self.bitstream_name = bitstream
         self.overlay = Overlay(self.bitstream_name)
 
-        self.library_name = lib
-        self._ffi = cffi.FFI()
-        self.dlib = self._ffi.dlopen(self.library_name)
-        self._ffi.cdef(self.ffi_interface)
+        self.library = library
         self.xlnk = Xlnk()
+        self.xlnk.set_allocator_library(self.library)
+
+        self._ffi = cffi.FFI()
+        self.dlib = self._ffi.dlopen(self.library)
+        self._ffi.cdef(self.ffi_interface)
+
+        # Whether to use sds_alloc or sds_alloc_non_cacheable
+        self.cacheable = cacheable
 
         # No previous prediction noise covariance
         self.P_pre = None
@@ -120,6 +127,8 @@ class EKF(object):
             Input numpy array, not necessarily in contiguous memory.
         dtype : type
             Data type for the give numpy array.
+        cacheable : int
+            Whether the buffer should be cacheable - defaults to 0.
 
         Returns
         -------
@@ -128,7 +137,8 @@ class EKF(object):
 
         """
         size = x.shape
-        data_buffer = self.xlnk.cma_array(shape=size, dtype=dtype)
+        data_buffer = self.xlnk.cma_array(shape=size, dtype=dtype,
+                                          cacheable=self.cacheable)
         np.copyto(data_buffer, x.astype(dtype), casting="unsafe")
         return data_buffer
 

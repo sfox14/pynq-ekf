@@ -35,15 +35,17 @@ class Light_EKF(EKF):
         observation covariance matrix, shape=(m,m)
     pars : np.ndarray
         flattened array containing P,Q,R, shape=(n*n + n*n + m*m, 1)
+    cacheable : int
+        Whether the buffers should be cacheable - defaults to 0
 
     """
     def __init__(self, n=2, m=2, pval=0.01, qval=0.01, rval=2.5,
-                 bitstream=None, lib=None):
+                 bitstream=None, library=None, cacheable=0):
         if bitstream is None:
             bitstream = os.path.join(ROOT_DIR, "n2m2", "ekf_n2m2.bit")
-        if lib is None:
-            lib = os.path.join(ROOT_DIR, "n2m2", "libekf_n2m2.so")
-        super().__init__(n, m, pval, qval, rval, bitstream, lib)
+        if library is None:
+            library = os.path.join(ROOT_DIR, "n2m2", "libekf_n2m2.so")
+        super().__init__(n, m, pval, qval, rval, bitstream, library, cacheable)
 
         self.n = n
         self.m = m
