@@ -102,6 +102,7 @@ $(BUILD_DIR)/$(LIBRARY): $(OBJECTS)
 	@echo 'Trigerring: SDS++ Linker'
 	cd $(BUILD_DIR) ; $(CPP) -fPIC -Wall -shared -o $(LIBRARY) $(OBJECTS)
 	@echo 'SDx Completed Building Target: $@'
+	mkdir -p ../boards/$(BOARD)/$(NAME)
 	@echo 'Copy shared object...'
 	cp $(BUILD_DIR)/$(LIBRARY) ../boards/$(BOARD)/$(NAME)
 	@echo 'Copy bitstream...'
