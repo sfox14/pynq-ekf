@@ -1,11 +1,13 @@
 
 # Rebuilding SDSoC Project
 
-This is a short guide for rebuilding the EKF project. The targeted SDSoC/HLS source files can be found in [/build/src](./src).
+This is a short guide for rebuilding the EKF project. The targeted SDSoC/HLS source files can be found in `/build/src`.
+This flow is only used in very rare cases; in general, users do not have to 
+rebuild anything when using this package.
 
-## 1. Hardware (x86):
-
-Steps for rebuilding the hardware on your host machine are given below. This flow generates a bitstream and cross-compiled stub object files. The stubs are outputs of SDSoC used to call IP on the FPGA, which must be linked with /usr/lib/libsds_lib.so on the PYNQ board. This will generate a c-callable software library, and is discussed more in the Software section below.
+Steps for rebuilding the hardware on your X86 host machine are given below. 
+This flow generates bitstreams and cross-compiled shared object files.
+The shared object files (`*.so`) can be used directly on a PYNQ-supported board.
 
 
 #### Step 1: Clone and Fork
@@ -14,16 +16,16 @@ On your host computer, clone this repository and change to the `build` directory
 
 ```shell
 git clone https://github.com/<fork_name>/pynq-ekf.git <local_git>
-cd <local_git>/build/x86
+cd <local_git>/build
 ```
 
 #### Step 2: Source Vivado and SDx
 
-For example, for 2017.4 tools:
+For example:
 
 ```shell
-source <sdx_installation_path>/installs/lin64/SDx/2017.4/settings64.sh
-source <vivado_installation_path>/installs/lin64/Vivado/2017.4/settings64.sh
+source <sdx_installation_path>/installs/lin64/SDx/<version>/settings64.sh
+source <vivado_installation_path>/installs/lin64/Vivado/<version>/settings64.sh
 ```
 
 #### Step 3: Get Platform Information
@@ -44,32 +46,9 @@ From the `build` directory run:
 make PLATFORM=<platform_path> BOARD=<board_name> CLK_ID=<clock_id>
 ```
 
-This will launch the sds++ compiler, and will generate both the bitstream and compiled stub object files. 
-
-## 2. Software (PYNQ board)
-
-The software library can be built on the PYNQ board using `setup.py`, or alternatively by running the makefile in `build/arm`.
-
-(Optional) Once the hardware has been built, changes to the repository can be pushed back to your fork at remote/origin/master. This will include the generated bitstream and compiled stub object files.
-
-```shell
-git add .
-git commit -m "EKF rebuild" 
-git push origin/master
-```
-
-#### Step 5: Pip Install
-
-Open a terminal on your PYNQ board and run:
-
-```
-sudo pip3 install --upgrade git+https://github.com/<fork_name>/pynq-ekf.git 
-```
-
-If you instead only copy the bitstream and object files directly to the board,
-you can use the makefile in `build/arm`. More information can be found by:
+This will launch the sds++ compiler, and will generate both the bitstreams 
+and shared object files. More information can be found by:
 
 ```shell
 make help
 ```
-

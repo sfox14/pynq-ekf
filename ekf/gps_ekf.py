@@ -30,15 +30,17 @@ class GPS_EKF(EKF):
         diagonal scaling factor for observation covariance
     x : numpy.ndarray
         The current mean state estimate
+    cacheable : int
+        Whether the buffers should be cacheable - defaults to 0
 
     """
     def __init__(self, n, m, pval=0.5, qval=0.1, rval=20.0,
-                 bitstream=None, lib=None):
+                 bitstream=None, library=None, cacheable=0):
         if bitstream is None:
             bitstream = os.path.join(ROOT_DIR, "gps", "ekf_gps.bit")
-        if lib is None:
-            lib = os.path.join(ROOT_DIR, "gps", "libekf_gps.so")
-        super().__init__(n, m, pval, qval, rval, bitstream, lib)
+        if library is None:
+            library = os.path.join(ROOT_DIR, "gps", "libekf_gps.so")
+        super().__init__(n, m, pval, qval, rval, bitstream, library, cacheable)
 
         self.toFixed = NumpyFloatToFixConverter(signed=True, n_bits=32,
                                                 n_frac=20)
@@ -97,9 +99,12 @@ class GPS_EKF(EKF):
 
         params = self.toFixed(params)
         self.param_buffer = self.copy_array(params)
-        self.pout_buffer = self.xlnk.cma_array(shape=(64, 1), dtype=dtype)
+        self.pout_buffer = self.xlnk.cma_array(shape=(64, 1),
+                                               dtype=dtype,
+                                               cacheable=self.cacheable)
         self.out_buffer_hw = self.xlnk.cma_array(shape=(MAX_LENGTH, 3),
-                                                 dtype=dtype)
+                                                 dtype=dtype,
+                                                 cacheable=self.cacheable)
         self.out_buffer_sw = np.zeros((MAX_LENGTH, 3))
 
     def reset(self):
@@ -197,15 +202,17 @@ class GPS_EKF_HWSW(EKF):
         observation covariance matrix
     pars : np.array(float), shape=(n*n + n*n + m*m, 1)
         flattened array containing P,Q,R
+    cacheable : int
+        Whether the buffers should be cacheable - defaults to 0
 
     """
     def __init__(self, n=8, m=4, pval=0.5, qval=0.1, rval=20,
-                 bitstream=None, lib=None):
+                 bitstream=None, library=None, cacheable=0):
         if bitstream is None:
             bitstream = os.path.join(ROOT_DIR, "n8m4", "ekf_n8m4.bit")
-        if lib is None:
-            lib = os.path.join(ROOT_DIR, "n8m4", "libekf_n8m4.so")
-        super().__init__(n, m, pval, qval, rval, bitstream, lib)
+        if library is None:
+            library = os.path.join(ROOT_DIR, "n8m4", "libekf_n8m4.so")
+        super().__init__(n, m, pval, qval, rval, bitstream, library, cacheable)
 
         self.n = n
         self.m = m
@@ -263,13 +270,13 @@ class GPS_EKF_HWSW(EKF):
         """
         self.set_state()
         self.params = self.copy_array(self.pars)
-        self.F_hw = self.copy_array(
-            self.toFixed(self.F.flatten()))
+        self.F_hw = self.copy_array(self.toFixed(self.F.flatten()))
         self.fx_hw = self.copy_array(np.zeros(self.n))
         self.hx_hw = self.copy_array(np.zeros(self.m))
         self.H_hw = self.copy_array(np.zeros(self.n * self.m))
         self.out_buffer_hw = self.xlnk.cma_array(shape=(50, self.n),
-                                                 dtype=np.int32)
+                                                 dtype=np.int32,
+                                                 cacheable=self.cacheable)
         self.out_buffer_sw = np.zeros((50, 3))
         self.obs = self.copy_array(np.zeros(self.m))
 
