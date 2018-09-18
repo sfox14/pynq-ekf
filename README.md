@@ -69,8 +69,8 @@ The following table shows the performance (execution time in seconds) of the EKF
 
 
 | Board      | TinyEKF<br>(C)| Naive SW<br>(Python) | HW-SW<br>(C)| HW-SW<br>(Python) | HW-only<br>(C)| HW-only<br>(Python) |
-|:---------- |:----------|:-------|:---------|:----------|:-----------|:------|
-|Pynq-Z1     |0.0152     |0.0641  |0.0972    |0.0029     |0.0026      |0.0019 |
+|:---------- |:--------------|:---------------------|:------------|:------------------|:--------------|:--------------------|
+|Pynq-Z1     |0.0152         |0.0641                |0.0972       |0.0029             |0.0026         |0.0019               |
 |Ultra96     |           |        |          |           |            |       |
 |ZCU104      |           |        |          |           |            |       |
 
@@ -89,14 +89,11 @@ Follow the [instructions](build/README.md) to rebuild the EKF. This repository c
 ## 6. Repository Structure:
 
 * `boards`: List of boards currently supported, with their associated bitstreams and libraries.
-   * `Pynq-Z1/Ultra96/ZCU104`: Supported boards
+   * `Pynq-Z1/Pynq-Z2/Ultra96/ZCU104/etc`: Supported boards
       * `gps/n2m2/etc`: various designs with their bitstreams and metadata.
       * `notebooks`: notebooks copied into the jupyter notebook location.
-* `build`: The source and scripts for the multi-board build flow
-    * `arm`: Makefile for linking SDSoC output object files on the board. This script is called from `setup.py` during pip install.
-    * `x86`: Host machine makefile
-      * `src`: HLS/SDSoC source files
-      * `dist`: Contains the compiled SDSoC object files from `make`
+* `build`: The source and scripts to rebuild the projects
+    * `src`: HLS/SDSoC source files
 * `ekf`: Python source and API. Each design inherits from a base class and implements their own model.
     * `ekf.py`: contains the EKF base class
     * `gps_ekf.py`: python class for the GPS example
