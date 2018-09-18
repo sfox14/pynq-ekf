@@ -127,8 +127,6 @@ class EKF(object):
             Input numpy array, not necessarily in contiguous memory.
         dtype : type
             Data type for the give numpy array.
-        cacheable : int
-            Whether the buffer should be cacheable - defaults to 0.
 
         Returns
         -------
