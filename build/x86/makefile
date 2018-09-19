@@ -57,11 +57,11 @@ ECHO:= @echo
 check_env:
 ifeq ($(shell "env" | grep "XILINX" | grep "SDX" | grep "2017.4"),)
 	$(ECHO) "ERROR: Please source <SDx_directory>/installs/lin64/SDx/2017.4/settings64.sh"
-	$(ECHO)
+	exit 1
 endif
 ifeq ($(shell "env" | grep "XILINX" | grep "Vivado" | grep "2017.4"),)
 	$(ECHO) "ERROR: Please source <Vivado_directory>/installs/lin64/Vivado/2017.4/settings64.sh"
-	$(ECHO)
+	exit 1
 endif
 
 .PHONY: help
