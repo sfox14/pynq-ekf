@@ -83,9 +83,11 @@ cleanall: clean
 check_env:
 ifeq ($(shell "env" | grep "XILINX" | grep "SDX" | grep $(TOOL_VERSION)),)
 	$(ECHO) "ERROR: Please source SDx $(TOOL_VERSION) settings."
+	exit 1
 endif
 ifeq ($(shell "env" | grep "XILINX" | grep "Vivado" | grep $(TOOL_VERSION)),)
 	$(ECHO) "ERROR: Please source Vivado $(TOOL_VERSION) settings."
+	exit 1
 endif
 
 help:
