@@ -4,7 +4,7 @@
 
 This repository provides an example of PYNQ supporting multiple boards from a single pip-installable package. From the same HLS/SDSoC source code, and using the same Python API and notebooks, we can develop applications which simply move across Xilinx boards. This has the potential to simplify the deployment of code in embedded applications, improve reusability and reduce design time.  
 
-## 1.  Quick Start:
+## 1.  Quick Start
 
 Open a terminal on your PYNQ board and run:
 
@@ -12,13 +12,13 @@ Open a terminal on your PYNQ board and run:
 sudo pip3 install --upgrade git+https://github.com/sfox14/pynq-ekf.git 
 ```
 
-This will install the "pynq-ekf" package to your board, and will create the "ekf" directory in the PYNQ_JUPYTER_NOTEBOOKS path. Here you will find notebooks which test our EKF design.
+This will install the `pynq-ekf` package to your board, and will create the `ekf` directory in the PYNQ_JUPYTER_NOTEBOOKS path. Here you will find notebooks which test our EKF design.
 
 1. `gps_notebook.ipynb` - the application of EKF in gps
 2. `light_notebook.ipynb` - a sensor fusion example using KF and board I/O
 
 
-## 2. Background:
+## 2. Background
 
 The Kalman Filter (KF) and Extended Kalman Filter (EKF) are recursive state estimators for linear and non-linear systems respectively, with additive white noise. KFs are optimal estimators whereas EKFs have to make an approximation. This is because linear functions of Gaussian variables are themselves Gaussian, and hence the posterior probability distribution function (PDF) can be computed exactly, applying matrix operators without doing any sampling. This also has computational benefits since the majority of modern processors are good at handling matrices. To leverage the benefits of linear models, for non-linear signals, EKFs find an approximation by linearising around an estimate of the non-linear function's mean. Linearisation is the same as computing the gradient, which means that matrices of partial derivatives (i.e. Jacobian matrices) need to be computed for each iteration or state estimate. Kalman Filtering is a prediction technique for modelling uncertainty, and therefore every variable and function has an associated mean and covariance which is assumed Gaussian. KFs and EKFs work by combining two noisy models, a process or state transition function (f) and observation function (h), and trade off the uncertainties of each to form a better estimate of the underlying state. This is captured in the computational graph for the EKF below:
 
@@ -29,7 +29,7 @@ The Kalman Filter (KF) and Extended Kalman Filter (EKF) are recursive state esti
 For more information on Kalman Filters, [this course](http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/) provides good explanation and notes .
 
 
-## 3. Design and Implementation:
+## 3. Design and Implementation
 
 There are two accelerator architectures.
 
@@ -63,40 +63,31 @@ The PL implements the required matrix operations in a dataflow architecture. The
 Given the performance drawbacks of the HW-SW co-design, it may be better to implement the entire algorithm on the FPGA. The `gps_example.ipynb` notebook gives an example for this, however this option can not support other EKF applications or configurations.
 
 
-## 4. Performance:
+## 4. Performance
 
-The following table shows the performance (execution time in seconds) of the EKF accelerator on the GPS example. It assumes a model with N=8 states and M=4 observations, and is the same as the C/C++ model implemented [here](https://github.com/simondlevy/TinyEKF/). The dataset is generated in [make_dataset.py](./utils/python/make_dataset.py), and characterises a typical GPS system. The execution time was measured from callsites written in both Python and C, for SW-only, HW-only and hybrid HW-SW designs, and shows up to **45x speed-up** when the entire algorithm is deployed on the FPGA.
-
-
-| Board      | TinyEKF<br>(C)| Naive SW<br>(Python) | HW-SW<br>(C)| HW-SW<br>(Python) | HW-only<br>(C)| HW-only<br>(Python) |
-|:---------- |:----------|:-------|:---------|:----------|:-----------|:------|
-|Pynq-Z1     |0.0152     |0.0641  |0.0972    |0.0029     |0.0026      |0.0019 |
-|Ultra96     |           |        |          |           |            |       |
-|ZCU104      |           |        |          |           |            |       |
-
-The design can be scaled to support bigger problems and larger devices. The next table shows the execution time in seconds for an EKF with N=72 and M=8 on ZCU104.
+The following table shows an example performance (execution time in milliseconds) of the EKF accelerator for the GPS example. 
+It assumes a model with N=8 states and M=4 observations, and is the same as the C/C++ model implemented [here](https://github.com/simondlevy/TinyEKF/). The dataset is generated in [make_dataset.py](./utils/python/make_dataset.py), and characterises a typical GPS system. The execution time was measured for SW-only, HW-only and hybrid HW-SW designs.
 
 
-| Configuration<br>(N, M) | SW<br>(C) | HW-SW<br>(C) | Speed-up<br>(x) |
-|:------------------------|:----------|:-------------|:----------------|
-|(72, 8)                  |           |              |                 |
+| Board      | PL Clock<br>/MHz | TinyEKF<br>(C)| Naive SW<br>(Python) | HW-SW<br>(Python) | HW-only<br>(Python) |
+|:---------- |:-----------------|:--------------|:---------------------|:------------------|:--------------------|
+|Pynq-Z1     |100               |15.2           |64.1                  |83.3               |1.8                  |
+|ZCU104      |250               |9.5            |27.7                  |37.1               |0.7                  |
 
+Note that Zynq Ultrascale boards such as ZCU104 in general have more cores, higher CPU frequency, higher PL clock rates, and larger DDR memory size.
 
-## 5. Build Flow:
+## 5. Build Flow
 
 Follow the [instructions](build/README.md) to rebuild the EKF. This repository contains prebuilt bitstreams and libraries for SDSoC projects built against Pynq-Z1, Ultra96 and ZCU104 boards. You must have a valid Xilinx license for Vivado and SDSoC 2017.4 to run the makefile.
 
-## 6. Repository Structure:
+## 6. Repository Structure
 
 * `boards`: List of boards currently supported, with their associated bitstreams and libraries.
-   * `Pynq-Z1/Ultra96/ZCU104`: Supported boards
+   * `Pynq-Z1/Pynq-Z2/Ultra96/ZCU104/etc`: Supported boards
       * `gps/n2m2/etc`: various designs with their bitstreams and metadata.
       * `notebooks`: notebooks copied into the jupyter notebook location.
-* `build`: The source and scripts for the multi-board build flow
-    * `arm`: Makefile for linking SDSoC output object files on the board. This script is called from `setup.py` during pip install.
-    * `x86`: Host machine makefile
-      * `src`: HLS/SDSoC source files
-      * `dist`: Contains the compiled SDSoC object files from `make`
+* `build`: The source and scripts to rebuild the projects
+    * `src`: HLS/SDSoC source files
 * `ekf`: Python source and API. Each design inherits from a base class and implements their own model.
     * `ekf.py`: contains the EKF base class
     * `gps_ekf.py`: python class for the GPS example
@@ -106,7 +97,7 @@ Follow the [instructions](build/README.md) to rebuild the EKF. This repository c
     * `python`: Code for generating `gps_data.csv` and `params.dat`
     * `tiny-ekf`: An adapted version of TinyEKF for our generated GPS dataset. Used to benchmark performance.
 
-## 8. References:
+## 8. References
 
 * [Kalman Filter Notes and Slides](http://ais.informatik.uni-freiburg.de/teaching/ws13/mapping/) - Online lectures and notes given on EKF by Cyril Stachniss (Albert-Ludwigs-Universität Freiburg).
 
